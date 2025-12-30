@@ -13,7 +13,7 @@ import {
 import { useTheme } from "next-themes";
 import { SidebarTrigger } from "./ui/sidebar";
 import { Button } from "./ui/button";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { NavLink } from "./NavLink";
 import { logout } from "@/lib/actions/auths";
 
@@ -24,19 +24,21 @@ export function Navbar() {
   const isAuthUser = !!session?.user;
 
   const { setTheme } = useTheme();
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/" });
-  };
+  // const handleLogout = () => {
+  //   signOut({ callbackUrl: "/" });
+  // };
   return (
     <nav className="p-4 flex justify-between items-center">
       {isAuthUser ? (
         <>
+        <div className="flex justify-center items-center">
           <SidebarTrigger />
+          </div>
           <div className="flex items-center gap-4">
             <NavLink label="Dashboard" href="/admin/dashboard" />
-            <form action={logout}>
-              <button className="nav-link">Logout</button>
-            </form>
+           
+              <button className="nav-link" onClick={logout}>Logout</button>
+          
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -81,7 +83,7 @@ export function Navbar() {
                 <DropdownMenuGroup>
                   <DropdownMenuItem
                     variant="destructive"
-                  
+                    onClick={logout}
                   >
                     <LogOut className="h-[1.2rem] w-[1.2rem] mr-2" />
                     Logout

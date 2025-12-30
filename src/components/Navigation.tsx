@@ -12,20 +12,29 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { LogOut, Settings, ShoppingBasketIcon, User } from "lucide-react";
+import { LogOut, Settings, User } from "lucide-react";
 import { NavLink } from "./NavLink";
 import Link from "next/link";
+import { getToken } from "next-auth/jwt";
+import { NextRequest } from "next/server";
+import { NextURL } from "next/dist/server/web/next-url";
 
 export default async function Navigation() {
   const session = await auth();
-
+   console.log("               session");
+    console.log(session);
   const isAuthUser = !!session?.user;
+  const role=(session as unknown as {role:string}).role ;
 
-  //console.log(isAuthUser);
+  // const token = await getToken({
+  //          req:NextURL,
+  //         secret: process.env.NEXTAUTH_SECRET,
+  //       });
+  //       const role = token?.role || "";
+  console.log(isAuthUser);
   return (
     <nav>
       <div className="flex">
-        
         <Image
           src="/logo.webp"
           alt="logo"
@@ -34,18 +43,19 @@ export default async function Navigation() {
           className="rounded-sm"
         />
         <NavLink label="Home" href="/" />
-        <Link href="/">
-      </Link>
+        <Link href="/"></Link>
       </div>
-      
-      {isAuthUser ? (
+
+    {/* //  { (isAuthUser) ? ( */}
+              { ((isAuthUser)&&(role==="user")) ? (
+
         <div className="flex items-center">
           <NavLink label="cart" href="/cart" iconName="ShoppingBasketIcon" />
 
           <NavLink label="Dashboard" href="/dashboard" />
-          <form action={logout}>
-            <button className="nav-link">Logout</button>
-          </form>
+          <button className="nav-link" onClick={logout}>
+            Logout
+          </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar>
@@ -68,9 +78,10 @@ export default async function Navigation() {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem variant="destructive">
-                  <form action={logout}>
-                  <LogOut className="h-[1.2rem] w-[1.2rem] mr-2" />
-                  </form>
+                  <LogOut
+                    onClick={logout}
+                    className="h-[1.2rem] w-[1.2rem] mr-2"
+                  />
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuGroup>

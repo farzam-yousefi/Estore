@@ -20,6 +20,7 @@ export interface LoginState {
   errors: {
     email: string;
     password: string;
+    total:string;
   };
   email: string;
 }
@@ -105,8 +106,9 @@ export async function login(
       errors: {
         email: parsed.error.flatten().fieldErrors.email?.[0] ?? "",
         password: parsed.error.flatten().fieldErrors.password?.[0] ?? "",
+        total:""
       },
-      email: "",
+      email: (formData.get("email") as string) || "",
     };
   }
 
@@ -117,16 +119,16 @@ export async function login(
 
   if (!user || !user.passwordHash) {
     return {
-      errors: { email: "Invalid credentials", password: "" },
-      email,
+      errors: { email: "", password:"",total:"Invalid credentials" },
+      email:"",
     };
   }
 
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
     return {
-      errors: { email: "", password: "Invalid password" },
-      email,
+      errors: { email: "", password:"",total:"Invalid credentials" },
+      email:"",
     };
   }
 
@@ -138,7 +140,7 @@ export async function login(
     redirectTo: callbackUrl,
   });
 
-  return { errors: { email: "", password: "" }, email };
+  return { errors: { email: "", password: "" , total:"" }, email };
 }
 
 // ======================

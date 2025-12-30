@@ -32,22 +32,23 @@ export const authConfig: NextAuthConfig = {
       ) {
         return Response.redirect(new URL("/dashboard", request.nextUrl));
       }
-   
+
       // ===== ADMIN ROUTES =====
+
+      //  if (isLoggedIn && !("user".includes(role))) {
+      //     console.log("hi");
+      //     if (pathname.startsWith("/dashboard") || pathname.startsWith("/cart"))
+      //       return Response.redirect(
+      //         new URL("/admin/dashboard", request.nextUrl)
+      //       );
+      //   }
+
       if (pathname.startsWith("/admin")) {
         if (!isLoggedIn && !pathname.startsWith("/admin/login")) {
           return Response.redirect(new URL("/admin/login", request.nextUrl));
         }
-
-        
-
-        
-        
-
         return true;
       }
-
-      
 
       // ===== USER ROUTES =====
       // Dashboard / cart
@@ -55,10 +56,11 @@ export const authConfig: NextAuthConfig = {
         if (!isLoggedIn) {
           return Response.redirect(new URL("/login", request.nextUrl));
         }
+        if(isLoggedIn&&(role!=="user"))
+          return Response.redirect(new URL("/", request.nextUrl));
         return true;
       }
 
-     
       return true;
     },
   },

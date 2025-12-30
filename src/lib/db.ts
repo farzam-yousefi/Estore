@@ -1,5 +1,5 @@
 // lib/db.ts
-'SERVER ONLY'
+
 import { MongoClient, Db, Collection, Document } from "mongodb"
 
 const uri = process.env.DB_URI!

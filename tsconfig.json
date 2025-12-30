@@ -12,7 +12,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-     "paths": {
+    "paths": {
       "@/*": ["./src/*"]
     },
     //"baseUrl": ".",
