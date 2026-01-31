@@ -122,120 +122,120 @@
 
 
 //******************************************************
-"use client";
+// "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import { resolveIcon } from "@/lib/icon-map";
-import { SidebarItem } from "@/types/sidebar.types";
-import { cn } from "@/lib/utils";
+// import { useEffect, useState } from "react";
+// import Link from "next/link";
+// import { ChevronRight } from "lucide-react";
+// import { resolveIcon } from "@/lib/icon-map";
+// import { SidebarItem } from "@/types/sidebar.types";
+// import { cn } from "@/lib/utils";
 
-interface Props {
-  item: SidebarItem;
-    depth?: number;
-}
+// interface Props {
+//   item: SidebarItem;
+//     depth?: number;
+// }
 
-export function SidebarItemNode({ item ,depth = 0}: Props) {
-  const Icon = resolveIcon(item.icon);
-  const isFlyout = item.submenuMode === "flyout";
-  const [open, setOpen] = useState(false);
+// export function SidebarItemNode({ item ,depth = 0}: Props) {
+//   const Icon = resolveIcon(item.icon);
+//   const isFlyout = item.submenuMode === "flyout";
+//   const [open, setOpen] = useState(false);
 
-  // close on outside click
-  useEffect(() => {
-    if (!open) return;
-    const handler = () => setOpen(false);
-    window.addEventListener("click", handler);
-    return () => window.removeEventListener("click", handler);
-  }, [open]);
+//   // close on outside click
+//   useEffect(() => {
+//     if (!open) return;
+//     const handler = () => setOpen(false);
+//     window.addEventListener("click", handler);
+//     return () => window.removeEventListener("click", handler);
+//   }, [open]);
 
-  // ---------- FLYOUT MODE ----------
-  if (item.children?.length && isFlyout) {
-    return (
-      <div
-        className="relative"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* trigger */}
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className={cn(
-            "flex w-full items-center justify-between gap-2 rounded-md px-4 py-2 text-sm",
-            "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          )}
-        >
-          <div className="flex items-center gap-2">
-            {Icon && <Icon className="h-4 w-4" />}
-            <span className="group-data-[collapsible=icon]:hidden">
-              {item.label}
-            </span>
-          </div>
+//   // ---------- FLYOUT MODE ----------
+//   if (item.children?.length && isFlyout) {
+//     return (
+//       <div
+//         className="relative"
+//         onClick={(e) => e.stopPropagation()}
+//       >
+//         {/* trigger */}
+//         <button
+//           type="button"
+//           onClick={() => setOpen((v) => !v)}
+//           className={cn(
+//             "flex w-full items-center justify-between gap-2 rounded-md px-4 py-2 text-sm",
+//             "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+//           )}
+//         >
+//           <div className="flex items-center gap-2">
+//             {Icon && <Icon className="h-4 w-4" />}
+//             <span className="group-data-[collapsible=icon]:hidden">
+//               {item.label}
+//             </span>
+//           </div>
 
-          <ChevronRight
-            className={cn(
-              "h-4 w-4 transition-transform",
-              open && "rotate-90"
-            )}
-          />
-        </button>
+//           <ChevronRight
+//             className={cn(
+//               "h-4 w-4 transition-transform",
+//               open && "rotate-90"
+//             )}
+//           />
+//         </button>
 
-        {/* flyout panel */}
-        {open && (
-          <div
-            className={cn(
-              "absolute top-0 left-full z-50 ml-2 min-w-48 rounded-md border",
-              "bg-sidebar text-sidebar-foreground shadow-lg"
-            )}
-          >
-            {item.children.map((child) => (
-              <Link
-                key={child.id}
-                href={child.path!}
-                className="block px-4 py-2 text-sm hover:bg-sidebar-accent"
-              >
-                {child.label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
- // ---------- INLINE MODE ----------
-  if (item.children?.length) {
-    return (
-      <div className="space-y-1">
-        <div
-          className={cn(
-            "flex items-center gap-2 px-4 py-2 text-sm font-medium",
-            "text-muted-foreground"
-          )}
-        >
-          {Icon && <Icon className="h-4 w-4" />}
-          {item.label}
-        </div>
+//         {/* flyout panel */}
+//         {open && (
+//           <div
+//             className={cn(
+//               "absolute top-full left-0 mt-1 z-50 rounded-md border",
+//               "bg-sidebar text-sidebar-foreground shadow-lg"
+//             )}
+//           >
+//             {item.children.map((child) => (
+//               <Link
+//                 key={child.id}
+//                 href={child.path!}
+//                 className="block px-4 py-2 text-sm hover:bg-sidebar-accent"
+//               >
+//                 {child.label}
+//               </Link>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+//     );
+//   }
+//  // ---------- INLINE MODE ----------
+//   if (item.children?.length) {
+//     return (
+//       <div className="space-y-1">
+//         <div
+//           className={cn(
+//             "flex items-center gap-2 px-4 py-2 text-sm font-medium",
+//             "text-muted-foreground"
+//           )}
+//         >
+//           {Icon && <Icon className="h-4 w-4" />}
+//           {item.label}
+//         </div>
 
-        <div className="space-y-1 pl-4">
-          {item.children.map((child) => (
-            <SidebarItemNode key={child.id} item={child} depth={depth + 1} />
-          ))}
-        </div>
-      </div>
-    );
-  }
+//         <div className="space-y-1 pl-4">
+//           {item.children.map((child) => (
+//             <SidebarItemNode key={child.id} item={child} depth={depth + 1} />
+//           ))}
+//         </div>
+//       </div>
+//     );
+//   }
 
-  // ---------- LEAF ----------
-  return (
-    <Link
-      href={item.path!}
-      className="flex items-center gap-2 rounded-md px-4 py-2 text-sm hover:bg-sidebar-accent"
-    >
-      {Icon && <Icon className="h-4 w-4" />}
-      <span className="group-data-[collapsible=icon]:hidden">
-        {item.label}
-      </span>
-    </Link>
-  );
+//   // ---------- LEAF ----------
+//   return (
+//     <Link
+//       href={item.path!}
+//       className="flex items-center gap-2 rounded-md px-4 py-2 text-sm hover:bg-sidebar-accent"
+//     >
+//       {Icon && <Icon className="h-4 w-4" />}
+//       <span className="group-data-[collapsible=icon]:hidden">
+//         {item.label}
+//       </span>
+//     </Link>
+//   );
 
-}
+// }

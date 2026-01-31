@@ -3,6 +3,10 @@
 import { MongoClient, Db, Collection, Document } from "mongodb"
 
 const uri = process.env.DB_URI!
+if (!uri) {
+  throw new Error("DB_URI is not defined in environment variables")
+}
+
 let db: Db
 
 declare global {

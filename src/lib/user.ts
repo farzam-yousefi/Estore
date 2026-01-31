@@ -15,7 +15,7 @@ export type DbUser = {
 export interface userDTO{
   email: string;
   passwordHash?: string
-   role: "superAdmin" | "admin" | "user";
+   role: "superAdmin" | "admin" | "user"|"guest";
   provider: "credentials" | "google";
   isActive: boolean;
 }

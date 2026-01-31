@@ -25,7 +25,7 @@ const [isPending, setIsPending] = useState(false);
     
     <Button 
       variant="outline"
-      className="bg-amber-400"
+      className="bg-blend-color-dodge"
       onClick={handleGoogleLogin}
       disabled={isPending}
     >

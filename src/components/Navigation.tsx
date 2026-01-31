@@ -24,7 +24,8 @@ export default async function Navigation() {
    console.log("               session");
     console.log(session);
   const isAuthUser = !!session?.user;
-  const role=(session as unknown as {role:string}).role ;
+  
+  const role=(isAuthUser) ? session?.user?.role : "guest";
 
   // const token = await getToken({
   //          req:NextURL,
@@ -32,6 +33,7 @@ export default async function Navigation() {
   //       });
   //       const role = token?.role || "";
   console.log(isAuthUser);
+  console.log (role);
   return (
     <nav>
       <div className="flex">

@@ -38,11 +38,14 @@
 //     .filter(Boolean) as SidebarGroup[];
 // }
 
+import {
+  SidebarGroup,
+  SidebarItem,
+  MergedSidebarGroup,
+} from "@/types/sidebar.types";
+import { AdminRole } from "@/types/Roles";
 
-import { SidebarGroup, SidebarItem, MergedSidebarGroup } from "@/types/sidebar.types";
-import { Role } from "@/lib/adminRoles";
-
-function filterItemsByRole(items: SidebarItem[], role: Role): SidebarItem[] {
+function filterItemsByRole(items: SidebarItem[], role: AdminRole): SidebarItem[] {
   return items
     .filter((item) => item.roles.includes(role) && !item.hidden)
     .map((item) => {
@@ -50,7 +53,7 @@ function filterItemsByRole(items: SidebarItem[], role: Role): SidebarItem[] {
 
       const filteredChildren = filterItemsByRole(item.children, role);
 
-      if (filteredChildren.length === 0 && !item.path) {
+      if (filteredChildren.length === 0 && !item.url) {
         return null;
       }
 
@@ -64,7 +67,7 @@ function filterItemsByRole(items: SidebarItem[], role: Role): SidebarItem[] {
 
 export function filterSidebarByRole(
   groups: MergedSidebarGroup[],
-  role: Role
+  role: AdminRole
 ): MergedSidebarGroup[] {
   return groups
     .map((group) => {

@@ -12,6 +12,21 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
+  trustHost: true, // IMPORTANT when using proxy
+
+  session: {
+    strategy: "jwt",
+
+    // ⏱ Session expires after 30 minutes of inactivity
+    maxAge: 30 * 60, // seconds
+
+    // 🔄 Refresh JWT every 5 minutes if active
+    updateAge: 5 * 60,
+  },
+
+  jwt: {
+    maxAge: 30 * 60, // MUST match session.maxAge
+  },
   providers: [
     // ======================
     // Credentials Provider
