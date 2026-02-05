@@ -8,9 +8,8 @@ export default function RegisterPage() {
   return (
     <div className="container w-1/2">
       <h1 className="title">Register</h1>
-
       <Suspense>
-        <RegisterForm  />
+        <RegisterForm />
       </Suspense>
     </div>
   );

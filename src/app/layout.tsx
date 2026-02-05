@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-
 import { Poppins, Roboto_Mono } from "next/font/google";
 
 const poppins = Poppins({
@@ -17,12 +14,11 @@ const robotoMono = Roboto_Mono({
   style: "italic",
 });
 
-
-export const metadata :Metadata= {
+export const metadata: Metadata = {
   title: "My Store",
   description: "The best e-shop in town",
   icons: {
-    icon: "/favicon.ico",   // Favicon
+    icon: "/favicon.ico", // Favicon
   },
   openGraph: {
     title: "My Store",
@@ -47,12 +43,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-   <html lang="en" suppressHydrationWarning >
-         {/* <body className={`${poppins.variable} font-sans`}> */}
-         <body className={`${poppins.className} min-h-screen antialiased font-sans`}>
-        
+    <html lang="en" suppressHydrationWarning>
+      {/* <body className={`${poppins.variable} font-sans`}> */}
+      <body
+        className={`${poppins.className} min-h-screen antialiased font-sans`}
+      >
         {children}
-       
       </body>
     </html>
   );

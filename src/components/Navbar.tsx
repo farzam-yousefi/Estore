@@ -19,26 +19,21 @@ import { logout } from "@/lib/actions/auths";
 
 export function Navbar() {
   const { data: session } = useSession();
-  //const session = await auth();
-
   const isAuthUser = !!session?.user;
-
   const { setTheme } = useTheme();
-  // const handleLogout = () => {
-  //   signOut({ callbackUrl: "/" });
-  // };
   return (
     <nav className="p-4 flex justify-between items-center">
       {isAuthUser ? (
         <>
-        <div className="flex justify-center items-center">
-          <SidebarTrigger />
+          <div className="flex justify-center items-center">
+            <SidebarTrigger />
           </div>
           <div className="flex items-center gap-4">
             <NavLink label="Dashboard" href="/admin/dashboard" />
-           
-              <button className="nav-link" onClick={logout}>Logout</button>
-          
+
+            <button className="nav-link" onClick={logout}>
+              Logout
+            </button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -81,10 +76,7 @@ export function Navbar() {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={logout}
-                  >
+                  <DropdownMenuItem variant="destructive" onClick={logout}>
                     <LogOut className="h-[1.2rem] w-[1.2rem] mr-2" />
                     Logout
                   </DropdownMenuItem>

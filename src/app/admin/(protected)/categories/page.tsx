@@ -1,10 +1,9 @@
 import AdminCategoriesPage from "@/components/AdminCategories";
-import CreateCategoryForm from "@/components/AdminCategories";
 import { Metadata } from "next";
 
- export const metadata: Metadata = {
-  title: 'All Category',
+export const metadata: Metadata = {
+  title: "All Category",
 };
 export default function Page() {
-  return < AdminCategoriesPage />
+  return <AdminCategoriesPage />;
 }

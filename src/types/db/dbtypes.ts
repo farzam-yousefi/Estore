@@ -12,11 +12,11 @@ export type CategoryProperty = {
   options?: string[];
 };
 
-
 export type Category = {
-  _id: ObjectId;
+  _id?: ObjectId;
   name: string;
   slug: string;
+  image?: string | null;
   baseProperties: CategoryProperty[];
 };
 
@@ -32,7 +32,7 @@ export type SubCategory = {
 export type Product = {
   _id: ObjectId;
   name: string;
-  sku: string;//T-shirt (Blue, L) → SKU: TS-BLU-L    SKU: IP15-256GB-BLACK
+  sku: string; //T-shirt (Blue, L) → SKU: TS-BLU-L    SKU: IP15-256GB-BLACK
   categoryId: ObjectId;
   price: number;
   currency: "USD" | "EUR" | "IRR";
@@ -43,11 +43,11 @@ export type Product = {
   createdAt: Date;
   updatedAt: Date;
   discount?: {
-  type: "percent" | "amount";
-  value: number;
-  startDate?: Date;
-  endDate?: Date;
-};
+    type: "percent" | "amount";
+    value: number;
+    startDate?: Date;
+    endDate?: Date;
+  };
 };
 
 export type GlobalDiscount = {
@@ -69,7 +69,7 @@ export type GlobalDiscount = {
 
 export type Coupon = {
   _id: ObjectId;
-  code: string;               // "SAVE20"
+  code: string; // "SAVE20"
   type: "percent" | "amount";
   value: number;
 
@@ -86,7 +86,3 @@ export type Coupon = {
   endDate: Date;
   isActive: boolean;
 };
-
-
-
-

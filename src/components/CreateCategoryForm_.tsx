@@ -1,35 +1,33 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { ImageIcon, Plus } from "lucide-react";
 import { CategoryProperty } from "@/types/db/dbtypes";
+import { State, addCategory } from "@/lib/actions/category";
 import PropertyComponent from "./PropertyComponent";
-import { addCategory, State } from "@/lib/actions/category";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function CreateCategoryForm() {
+
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
+  const [imagePreview,setImagePreview]= useState<string|null>(null);
   const [properties, setProperties] = useState<CategoryProperty[]>([]);
 
+  // Add a new empty property
   const addProperty = () => {
-    setProperties([
-      ...properties,
+    setProperties((prev) => [
+      ...prev,
       { name: "", label: "", type: "string", required: false, options: [] },
     ]);
   };
 
+  // Update property field
   const updateProperty = (
     index: number,
     key: keyof CategoryProperty,
@@ -40,29 +38,35 @@ export default function CreateCategoryForm() {
     );
   };
 
+  // Remove property
   const removeProperty = (index: number) => {
     setProperties((prev) => prev.filter((_, i) => i !== index));
   };
-  const initialState: State = { message: null, errors: {}, defaultValues: {} };
 
-  // const updateProperty = (
-  //   index: number,
-  //   key: keyof CategoryProperty,
-  //   value: any
-  // ) => {
-  //   const updated = [...properties];
-  //   (updated[index] as any)[key] = value;
-  //   setProperties(updated);
-  // };
-
-  // const removeProperty = (index: number) => {
-  //   setProperties(properties.filter((_, i) => i !== index));
-  // };
+  const initialState: State = {
+    message: "",
+    errors: undefined,
+    defaultValues: undefined,
+  };
 
   const [state, formAction] = useActionState(addCategory, initialState);
+
+  // Update form values when validation fails
+  useEffect(() => {
+    if (state.defaultValues) {
+      setName(state.defaultValues.catName || "");
+      setSlug(state.defaultValues.catSlug || "");
+      setImagePreview(state.defaultValues.catImage|| "")
+      setProperties(state.defaultValues.properties || []);
+    }
+  }, [state.defaultValues]);
+
   const propertyErrors = state.errors?.properties ?? [];
 
-
+  const handleImageChange = (file :File | null) =>{
+    if(!file) return;
+    setImagePreview (URL.createObjectURL(file));
+  }
   return (
     <form action={formAction}>
       <Card className="max-w-4xl mx-auto">
@@ -81,9 +85,10 @@ export default function CreateCategoryForm() {
                 onChange={(e) => setName(e.target.value)}
               />
               {state.errors?.name && (
-                <p className="text-sm text-destructive">{state.errors?.name}</p>
+                <p className="text-sm text-destructive">{state.errors.name}</p>
               )}
             </div>
+
             <div className="space-y-2">
               <Label>Slug</Label>
               <Input
@@ -92,10 +97,60 @@ export default function CreateCategoryForm() {
                 onChange={(e) => setSlug(e.target.value)}
               />
               {state.errors?.slug && (
-                <p className="text-sm text-destructive">{state.errors?.slug}</p>
+                <p className="text-sm text-destructive">{state.errors.slug}</p>
               )}
             </div>
           </div>
+
+
+
+
+  {/* Category Image */}
+          <div className="space-y-2">
+            <Label>Category Image</Label>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <label
+                htmlFor="image"
+                className="flex items-center justify-center gap-2 px-4 py-2 border border-dashed rounded-lg cursor-pointer hover:bg-muted transition"
+              >
+                <ImageIcon className="w-5 h-5" />
+                <span>Upload Image</span>
+              </label>
+
+              <Input
+                id="image"
+                name="image"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) =>
+                  handleImageChange(e.target.files?.[0] ?? null)
+                }
+              />
+
+  <p className="text-xs text-blue-900">
+    PNG, JPG, WEBP — max 2MB
+  </p>
+
+
+              {imagePreview && (
+                <div className="relative w-24 h-24 rounded-lg overflow-hidden border">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+            </div>
+             {state.errors?.image && (
+                <p className="text-sm text-destructive">{state.errors.image}</p>
+              )}
+          </div>
+
+
 
           {/* Properties */}
           <div className="space-y-4">
@@ -108,8 +163,8 @@ export default function CreateCategoryForm() {
 
             {properties.map((prop, index) => (
               <PropertyComponent
-                property={prop}
                 key={index}
+                property={prop}
                 index={index}
                 errors={propertyErrors[index]}
                 onChange={updateProperty}
@@ -121,8 +176,32 @@ export default function CreateCategoryForm() {
           <Button type="submit" className="w-full">
             Create Category
           </Button>
+
+        
+
         </CardContent>
+          {/* General message */}
+          {state.message && (
+            <div className="justify-center mx-auto">        
+          {(state.message==="Category was added successfully") ? (
+            <>
+            <p className="mt-2 text-sm text-green-600">{state.message}</p>
+            <Link href="/admin/categories"> <Button type="submit"  className="w-full mt-2">
+            Show Categories
+          </Button>
+          </Link>
+          </>
+          )
+          :(
+            <p className="mt-2 text-sm text-destructive">{state.message}</p>
+          )
+        }
+          </div>
+        )}
       </Card>
+      
     </form>
+
   );
+
 }

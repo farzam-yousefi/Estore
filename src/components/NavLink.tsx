@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ShoppingBasketIcon } from "lucide-react";
@@ -16,9 +16,7 @@ interface NavLinkProps {
 }
 
 export const NavLink: React.FC<NavLinkProps> = ({ label, href, iconName }) => {
-  // ✅ use the variable `iconName`, not the type `IconName`
   const Icon = iconName ? icons[iconName] : () => <span />;
-
   const pathName = usePathname();
   const isActive = pathName === href || pathName.startsWith(`${href}/`);
 
@@ -30,5 +28,5 @@ export const NavLink: React.FC<NavLinkProps> = ({ label, href, iconName }) => {
       <Icon className="w-5 h-5" />
       <span>{label}</span>
     </Link>
-  )
+  );
 };

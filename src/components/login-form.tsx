@@ -4,7 +4,11 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { login, LoginState } from "../lib/actions/auths";
 import GoogleLoginButton from "./GoogleLoginButton";
-import { AtSymbolIcon, ExclamationCircleIcon, KeyIcon } from "@heroicons/react/24/outline";
+import {
+  AtSymbolIcon,
+  ExclamationCircleIcon,
+  KeyIcon,
+} from "@heroicons/react/24/outline";
 
 import { LogInIcon } from "lucide-react";
 
@@ -14,7 +18,7 @@ export default function LoginForm() {
     errors: {
       email: "",
       password: "",
-      total:""
+      total: "",
     },
   };
   const [state, loginAction, isPending] = useActionState(login, initialState);
@@ -73,7 +77,7 @@ export default function LoginForm() {
             </div>
           </div>
         </div>
-<div className="flex h-4 items-end space-x-1">
+        <div className="flex h-4 items-end space-x-1">
           {state.errors.total && (
             <>
               <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
@@ -97,11 +101,9 @@ export default function LoginForm() {
           </div>
         </div>
       </form>
-
       <div className="flex flex-row items-center justify-center">
         <GoogleLoginButton />
       </div>
-      
     </div>
   );
 }

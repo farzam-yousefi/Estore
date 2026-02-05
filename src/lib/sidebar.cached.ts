@@ -14,7 +14,7 @@ export async function getCachedSidebarGroups(
 
   // Fetch all documents from MongoDB
   const docs = await collection.find({}).toArray();
-  console.log("db collll",docs);
+ 
   cache = docs; // store the array in cache
   return cache;
 }

@@ -3,6 +3,7 @@ export type CategoryClient = {
   _id: string;
   name: string;
   slug: string;
+  image?:string|null;
   baseProperties: {
     name: string;
     label: string;

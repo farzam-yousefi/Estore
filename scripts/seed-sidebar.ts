@@ -8,18 +8,16 @@ async function seedSidebar() {
   if (!process.env.DB_URI) {
     throw new Error("DB_URI not defined in .env");
   }
-  
-    const collection = await getCollection<SidebarGroupDoc>("sidebar_groups");
-try {
+
+  const collection = await getCollection<SidebarGroupDoc>("sidebar_groups");
+  try {
     // drop existing data
     await collection.drop();
 
-
     console.log("Cleared existing sidebar_groups collection.");
 
-    
     // Insert seed data
-   await collection.insertMany(sidebarSeedData);
+    await collection.insertMany(sidebarSeedData);
     console.log(`Inserted ${sidebarSeedData.length} sidebar groups.`);
   } catch (err) {
     console.error("Failed to seed sidebar:", err);
@@ -28,7 +26,8 @@ try {
 
 // Run the seeding script
 seedSidebar()
-  .then(() =>{ 
+  .then(() => {
     console.log("Sidebar seeded successfully.");
-console.log("⚠ Restart the Next.js server to refresh sidebar cache.");
-  }).catch(console.error);
+    console.log("⚠ Restart the Next.js server to refresh sidebar cache.");
+  })
+  .catch(console.error);

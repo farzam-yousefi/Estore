@@ -5,7 +5,8 @@ export const LoginFormSchema = z.object({
   password: z.string().min(1, { message: "Password is required." }).trim(),
 });
 
-export const RegisterFormSchema = z.object({
+export const RegisterFormSchema = z
+  .object({
     email: z.string().email({ message: "Please enter a valid email." }).trim(),
     password: z
       .string()
@@ -28,46 +29,23 @@ export const RegisterFormSchema = z.object({
       });
     }
   });
-// const FormSchema = z.object({
-//   id: z.string(),
-//   customerId: z.string({ invalid_type_error: "Please select a customer." }),
-//   amount: z.coerce
-//     .number()
-//     .gt(0, { message: "Please enter an amount greater than $0." }),
-//   status: z.enum(["pending", "paid"], {
-//     invalid_type_error: "Please select an invoice status.",
-//   }),
-//   date: z.string(),
-// });
-
-
-// export const PropertySchema = z.object({
-//   name: z.string().min(1, "Property name is required"),
-//   label: z.string().min(1, "Property label is required"),
-//   type: z.enum(["string", "number", "boolean", "date"]),
-//   required: z.boolean().optional(),
-//   options: z.string().optional(),
-// });
-
-// export const CategoryFormSchema = z.object({
-//   catName: z.string().min(1, "Category name is required"),
-//   catSlug: z.string().min(1, "Slug is required"),
-//   properties: z.array(PropertySchema).min(1),
-// });
-
 
 export const PropertySchema = z.object({
   name: z.string().min(1, "Property name is required"),
   label: z.string().min(1, "Property label is required"),
   type: z.enum(["string", "number", "boolean", "date"]),
   required: z.boolean(),
-  
+
   options: z.string().optional(),
 });
-
 
 export const CategoryFormSchema = z.object({
   catName: z.string().min(1, "Category name is required"),
   catSlug: z.string().min(1, "Slug is required"),
   properties: z.array(PropertySchema).min(1),
+});
+
+export const CategoryFormSchemaWithoutProp = z.object({
+  catName: z.string().min(1, "Category name is required"),
+  catSlug: z.string().min(1, "Slug is required"),
 });

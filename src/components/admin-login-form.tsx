@@ -1,11 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import Link from "next/link";
 import { login, LoginState } from "../lib/actions/auths";
-import GoogleLoginButton from "./GoogleLoginButton";
-import { usePathname } from "next/navigation";
-import Image from "next/image";
 import {
   AtSymbolIcon,
   KeyIcon,
@@ -13,8 +9,6 @@ import {
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "./ui/button";
-import { LogInIcon } from "lucide-react";
-import { signIn } from "@/auth";
 export default function AdminLoginForm() {
   const initialState: LoginState = {
     email: "",
@@ -25,7 +19,7 @@ export default function AdminLoginForm() {
     },
   };
   const [state, loginAction, isPending] = useActionState(login, initialState);
-  const pathName = usePathname();
+
   return (
     <div>
       <form action={loginAction} className="space-y-4">

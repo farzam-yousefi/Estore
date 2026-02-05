@@ -17,10 +17,6 @@ export const authConfig: NextAuthConfig = {
       const isLoggedIn = !!auth?.user;
 
       const pathname = request.nextUrl.pathname;
-      console.log("======================");
-      console.log(auth);
-      console.log(pathname);
-      console.log(role);
 
       // ===== ADMIN ROUTES =====
 
@@ -35,14 +31,6 @@ export const authConfig: NextAuthConfig = {
 
       // ===== ADMIN ROUTES =====
 
-      //  if (isLoggedIn && !("user".includes(role))) {
-      //     console.log("hi");
-      //     if (pathname.startsWith("/dashboard") || pathname.startsWith("/cart"))
-      //       return Response.redirect(
-      //         new URL("/admin/dashboard", request.nextUrl)
-      //       );
-      //   }
-
       if (pathname.startsWith("/admin")) {
         if (!isLoggedIn && !pathname.startsWith("/admin/login")) {
           return Response.redirect(new URL("/admin/login", request.nextUrl));
@@ -56,7 +44,7 @@ export const authConfig: NextAuthConfig = {
         if (!isLoggedIn) {
           return Response.redirect(new URL("/login", request.nextUrl));
         }
-        if(isLoggedIn&&(role!=="user"))
+        if (isLoggedIn && role !== "user")
           return Response.redirect(new URL("/", request.nextUrl));
         return true;
       }

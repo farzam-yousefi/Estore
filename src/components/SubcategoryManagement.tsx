@@ -13,7 +13,6 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
-
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -34,10 +33,7 @@ import {
 } from "@/components/ui/drawer";
 import { ArrowLeft, Plus, Trash } from "lucide-react";
 import PropertyComponent from "./PropertyComponent";
-import { CategoryProperty,PropertyType } from "@/types/db/dbtypes";
-
-
-
+import { CategoryProperty, PropertyType } from "@/types/db/dbtypes";
 
 type MasterCategory = {
   id: string;
@@ -104,7 +100,6 @@ const mockLevel2: SubCategory[] = [
   },
 ];
 
-
 export default function SubcategoryManagementPage({
   params,
 }: {
@@ -123,18 +118,17 @@ export default function SubcategoryManagementPage({
 
   const [activeSub, setActiveSub] = useState<SubCategory | null>(null);
   const [extraProperties, setExtraProperties] = useState<CategoryProperty[]>(
-    []
+    [],
   );
 
   const [selectedLevel1Id, setSelectedLevel1Id] = useState<string | null>(null);
-const [selectedLevel2Id, setSelectedLevel2Id] = useState<string | null>(null);
-const [level1Value, setLevel1Value] = useState("");
-const [level2Value, setLevel2Value] = useState("");
-
+  const [selectedLevel2Id, setSelectedLevel2Id] = useState<string | null>(null);
+  const [level1Value, setLevel1Value] = useState("");
+  const [level2Value, setLevel2Value] = useState("");
 
   const [hasParent, setHasParent] = useState(false);
-const [parentId, setParentId] = useState<string | null>(null);
-const [parentOpen, setParentOpen] = useState(false);
+  const [parentId, setParentId] = useState<string | null>(null);
+  const [parentOpen, setParentOpen] = useState(false);
 
   // Fetch mock data
   useEffect(() => {
@@ -148,20 +142,19 @@ const [parentOpen, setParentOpen] = useState(false);
   }, [selectedLevel1]);
 
   const filteredLevel2 = level2.filter(
-    (item) => item.parentId === selectedLevel1
+    (item) => item.parentId === selectedLevel1,
   );
-  
 
   // ----------------------------
   // BASE PROPERTIES (correct)
   // ----------------------------
-//   const extraProperties = useMemo(() => {
-//     const level1Item = level1.find((x) => x.id === selectedLevel1);
-//     const level1Props = level1Item?.properties ?? [];
+  //   const extraProperties = useMemo(() => {
+  //     const level1Item = level1.find((x) => x.id === selectedLevel1);
+  //     const level1Props = level1Item?.properties ?? [];
 
-//     // Combine master + level1
-//     return [...mockMasterCategory.baseProperties, ...level1Props];
-//   }, [level1, selectedLevel1]);
+  //     // Combine master + level1
+  //     return [...mockMasterCategory.baseProperties, ...level1Props];
+  //   }, [level1, selectedLevel1]);
 
   const selectedLevel2Item = useMemo(() => {
     return level2.find((x) => x.id === selectedLevel2) ?? null;
@@ -174,30 +167,27 @@ const [parentOpen, setParentOpen] = useState(false);
     setDrawerOpen(true);
   };
 
-     const [properties, setProperties] = useState<CategoryProperty[]>([]);
-    
-      const addDrawerProperty = () => {
-        setProperties([
-          ...properties,
-          { name: "", label: "", type: "string", required: false, options: [] },
-        ]);
-      };
-      const updateDrawerProperty = <
-  K extends keyof CategoryProperty
->(
-  index: number,
-  key: K,
-  value: CategoryProperty[K]
-) => {
-  setProperties((prev) =>
-    prev.map((p, i) => (i === index ? { ...p, [key]: value } : p))
-  );
-};
+  const [properties, setProperties] = useState<CategoryProperty[]>([]);
 
-const removeDrawerProperty = (index: number) => {
-  setProperties((prev) => prev.filter((_, i) => i !== index));
-};
+  const addDrawerProperty = () => {
+    setProperties([
+      ...properties,
+      { name: "", label: "", type: "string", required: false, options: [] },
+    ]);
+  };
+  const updateDrawerProperty = <K extends keyof CategoryProperty>(
+    index: number,
+    key: K,
+    value: CategoryProperty[K],
+  ) => {
+    setProperties((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, [key]: value } : p)),
+    );
+  };
 
+  const removeDrawerProperty = (index: number) => {
+    setProperties((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const addProperty = () => {
     setExtraProperties((prev) => [
@@ -209,10 +199,10 @@ const removeDrawerProperty = (index: number) => {
   const updateProperty = (
     index: number,
     key: keyof CategoryProperty,
-    value: any
+    value: any,
   ) => {
     setExtraProperties((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, [key]: value } : p))
+      prev.map((p, i) => (i === index ? { ...p, [key]: value } : p)),
     );
   };
 
@@ -267,55 +257,49 @@ const removeDrawerProperty = (index: number) => {
               </SelectContent>
             </Select>
           </div> */}
-        
 
+          {/* Level 1 */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Level 1 Subcategory</label>
 
-{/* Level 1 */}
-<div className="space-y-2">
-  <label className="text-sm font-medium">Level 1 Subcategory</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  {level1Value || "Type or select level 1"}
+                </Button>
+              </PopoverTrigger>
 
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button
-        variant="outline"
-        className="w-full justify-between"
-      >
-        {level1Value || "Type or select level 1"}
-      </Button>
-    </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput
+                    placeholder="Type level 1 name..."
+                    value={level1Value}
+                    onValueChange={setLevel1Value}
+                  />
 
-    <PopoverContent className="w-full p-0">
-      <Command>
-        <CommandInput
-          placeholder="Type level 1 name..."
-          value={level1Value}
-          onValueChange={setLevel1Value}
-        />
-
-        <CommandGroup>
-          {level1.map((item) => (
-            <CommandItem
-              key={item.id}
-              value={item.name}
-              onSelect={() => {
-                setLevel1Value(item.name);
-                setSelectedLevel1Id(item.id);
-                setLevel2Value("");
-                setSelectedLevel2Id(null);
-              }}
-            >
-              {item.name}
-              {selectedLevel1Id === item.id && (
-                <Check className="ml-auto h-4 w-4" />
-              )}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </Command>
-    </PopoverContent>
-  </Popover>
-</div>
-
+                  <CommandGroup>
+                    {level1.map((item) => (
+                      <CommandItem
+                        key={item.id}
+                        value={item.name}
+                        onSelect={() => {
+                          setLevel1Value(item.name);
+                          setSelectedLevel1Id(item.id);
+                          setLevel2Value("");
+                          setSelectedLevel2Id(null);
+                        }}
+                      >
+                        {item.name}
+                        {selectedLevel1Id === item.id && (
+                          <Check className="ml-auto h-4 w-4" />
+                        )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
 
           {/* Level 2 */}
           {/* <div className="space-y-2">
@@ -342,53 +326,52 @@ const removeDrawerProperty = (index: number) => {
             </Select>
           </div> */}
           {/* Level 2 */}
-<div className="space-y-2">
-  <label className="text-sm font-medium">Level 2 Subcategory</label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Level 2 Subcategory</label>
 
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button
-        variant="outline"
-        className="w-full justify-between"
-        disabled={!selectedLevel1Id}
-      >
-        {level2Value ||
-          (selectedLevel1Id
-            ? "Type or select level 2"
-            : "Select level 1 first")}
-      </Button>
-    </PopoverTrigger>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between"
+                  disabled={!selectedLevel1Id}
+                >
+                  {level2Value ||
+                    (selectedLevel1Id
+                      ? "Type or select level 2"
+                      : "Select level 1 first")}
+                </Button>
+              </PopoverTrigger>
 
-    <PopoverContent className="w-full p-0">
-      <Command>
-        <CommandInput
-          placeholder="Type level 2 name..."
-          value={level2Value}
-          onValueChange={setLevel2Value}
-        />
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput
+                    placeholder="Type level 2 name..."
+                    value={level2Value}
+                    onValueChange={setLevel2Value}
+                  />
 
-        <CommandGroup>
-          {filteredLevel2.map((item) => (
-            <CommandItem
-              key={item.id}
-              value={item.name}
-              onSelect={() => {
-                setLevel2Value(item.name);
-                setSelectedLevel2Id(item.id);
-              }}
-            >
-              {item.name}
-              {selectedLevel2Id === item.id && (
-                <Check className="ml-auto h-4 w-4" />
-              )}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </Command>
-    </PopoverContent>
-  </Popover>
-</div>
-
+                  <CommandGroup>
+                    {filteredLevel2.map((item) => (
+                      <CommandItem
+                        key={item.id}
+                        value={item.name}
+                        onSelect={() => {
+                          setLevel2Value(item.name);
+                          setSelectedLevel2Id(item.id);
+                        }}
+                      >
+                        {item.name}
+                        {selectedLevel2Id === item.id && (
+                          <Check className="ml-auto h-4 w-4" />
+                        )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </Card>
 
@@ -427,59 +410,62 @@ const removeDrawerProperty = (index: number) => {
               )}
             </Card>
           </div>
- {/* level1 properties (editable) */}
+          {/* level1 properties (editable) */}
           <div>
             <p className="text-xs font-semibold mb-2">Level1 Properties</p>
             <Card className="p-3 space-y-3">
-                {mockLevel1.map((item)=> (
-              item.properties.map((prop,idx)=> (
-                // mockLevel1.map((prop, idx) => (
-                <div key={idx} className="grid grid-cols-12 gap-2 items-center">
-                  <Input
-                    className="col-span-4"
-                    value={prop.name}
-                    placeholder="Name"
-                    onChange={(e) =>
-                      updateProperty(idx, "name", e.target.value)
-                    }
-                  />
-                  <Input
-                    className="col-span-4"
-                    value={prop.label}
-                    placeholder="Label"
-                    onChange={(e) =>
-                      updateProperty(idx, "label", e.target.value)
-                    }
-                  />
-
-                  <Select
-                    value={prop.type}
-                    onValueChange={(val) =>
-                      updateProperty(idx, "type", val as PropertyType)
-                    }
+              {mockLevel1.map((item) =>
+                item.properties.map((prop, idx) => (
+                  // mockLevel1.map((prop, idx) => (
+                  <div
+                    key={idx}
+                    className="grid grid-cols-12 gap-2 items-center"
                   >
-                    <SelectTrigger className="w-full col-span-2">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="string">string</SelectItem>
-                      <SelectItem value="number">number</SelectItem>
-                      <SelectItem value="boolean">boolean</SelectItem>
-                      <SelectItem value="date">date</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <Input
+                      className="col-span-4"
+                      value={prop.name}
+                      placeholder="Name"
+                      onChange={(e) =>
+                        updateProperty(idx, "name", e.target.value)
+                      }
+                    />
+                    <Input
+                      className="col-span-4"
+                      value={prop.label}
+                      placeholder="Label"
+                      onChange={(e) =>
+                        updateProperty(idx, "label", e.target.value)
+                      }
+                    />
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="col-span-2"
-                    onClick={() => removeProperty(idx)}
-                  >
-                    <Trash className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              ))
-            ))}
+                    <Select
+                      value={prop.type}
+                      onValueChange={(val) =>
+                        updateProperty(idx, "type", val as PropertyType)
+                      }
+                    >
+                      <SelectTrigger className="w-full col-span-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="string">string</SelectItem>
+                        <SelectItem value="number">number</SelectItem>
+                        <SelectItem value="boolean">boolean</SelectItem>
+                        <SelectItem value="date">date</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="col-span-2"
+                      onClick={() => removeProperty(idx)}
+                    >
+                      <Trash className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                )),
+              )}
             </Card>
           </div>
           {/* Extra properties (editable) */}
@@ -535,148 +521,156 @@ const removeDrawerProperty = (index: number) => {
             </Card>
           </div>
           <div className="flex justify-end gap-2 pt-4 w-full">
-                        <Button variant="outline" >
-                          Cancel
-                        </Button>
-                        <Button
-  onClick={() => {
-    const payload = {
-      level1: {
-        id: selectedLevel1Id,
-        name: level1Value,
-      },
-      level2: {
-        id: selectedLevel2Id,
-        name: level2Value,
-      },
-    };
+            <Button variant="outline">Cancel</Button>
+            <Button
+              onClick={() => {
+                const payload = {
+                  level1: {
+                    id: selectedLevel1Id,
+                    name: level1Value,
+                  },
+                  level2: {
+                    id: selectedLevel2Id,
+                    name: level2Value,
+                  },
+                };
 
-    console.log("SUBMIT:", payload);
-    // call server action / mutation here
-  }}
->
-  Save
-</Button>
-
-                      </div>
+                console.log("SUBMIT:", payload);
+                // call server action / mutation here
+              }}
+            >
+              Save
+            </Button>
+          </div>
         </div>
       </Card>
 
       {/* Drawer (Add / Edit) */}
 
-<div className="@container/container space-y-4">
-      
-
-      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen} direction="right">
-          <DrawerContent className="
+      <div className="@container/container space-y-4">
+        <Drawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          direction="right"
+        >
+          <DrawerContent
+            className="
     w-full
     max-w-md
     ml-auto
     h-full
     @container
-  ">
-        {/* <DrawerContent className="w-full max-w-md ml-auto"> */}
-          <DrawerHeader>
-            <DrawerTitle>
-              {drawerMode === "add" ? "Add Subcategory" : "Edit Subcategory"}
-            </DrawerTitle>
-          </DrawerHeader>
-
-         <div className="p-4 space-y-4 overflow-y-auto h-[calc(100vh-6rem)]">
-      <div className="space-y-1">
-              <label className="text-sm font-medium">Name</label>
-              <Input placeholder="e.g. Smartphones" />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Slug</label>
-              <Input placeholder="e.g. smartphones" />
-            </div>
-            <div className="space-y-2">
-  <label className="text-sm font-medium">Parent Category</label>
-
-  <div className="flex items-center gap-4">
-    {/* Have Parent Switch */}
-    <div className="flex items-center gap-2">
-      <Switch
-        checked={hasParent}
-        onCheckedChange={(checked) => {
-          setHasParent(checked);
-          if (!checked) setParentId(null);
-        }}
-      />
-      <span className="text-sm">Have parent</span>
-    </div>
-
-    {/* Combobox (shown only if switch is ON) */}
-    {hasParent && (
-      <Popover open={parentOpen} onOpenChange={setParentOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            className="w-50 justify-between"
+  "
           >
-            {parentId
-              ? mockLevel1.find((c) => c.id === parentId)?.name
-              : "Select parent"}
-            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-          </Button>
-        </PopoverTrigger>
+            {/* <DrawerContent className="w-full max-w-md ml-auto"> */}
+            <DrawerHeader>
+              <DrawerTitle>
+                {drawerMode === "add" ? "Add Subcategory" : "Edit Subcategory"}
+              </DrawerTitle>
+            </DrawerHeader>
 
-        <PopoverContent className="w-50 p-0">
-          <Command>
-            <CommandEmpty>No category found.</CommandEmpty>
-            <CommandGroup>
-              {mockLevel1.map((cat) => (
-                <CommandItem
-                  key={cat.id}
-                  value={cat.name}
-                  onSelect={() => {
-                    setParentId(cat.id);
-                    setParentOpen(false);
-                  }}
-                >
-                  <Check
-                    className={`mr-2 h-4 w-4 ${
-                      parentId === cat.id ? "opacity-100" : "opacity-0"
-                    }`}
-                  />
-                  {cat.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    )}
-  </div>
-</div>
-   {/* Properties */}
-         <div className="space-y-4">
-           <div className="flex items-center justify-between">
-             <h3 className="text-lg font-semibold">Properties</h3>
-             <Button type="button" onClick={addDrawerProperty} size="sm">
-               <Plus className="w-4 h-4 mr-2" /> Add Property
-             </Button>
-           </div>
- 
-           {properties.map((prop, index) => (
-            <div key={prop.label}>
-          <PropertyComponent property={prop} index={index} onChange={updateDrawerProperty}
-     onRemove={removeDrawerProperty}  />    
-     </div>    ))}
-         </div>
+            <div className="p-4 space-y-4 overflow-y-auto h-[calc(100vh-6rem)]">
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Name</label>
+                <Input placeholder="e.g. Smartphones" />
+              </div>
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setDrawerOpen(false)}>
-                Cancel
-              </Button>
-              <Button>Save</Button>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Slug</label>
+                <Input placeholder="e.g. smartphones" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Parent Category</label>
+
+                <div className="flex items-center gap-4">
+                  {/* Have Parent Switch */}
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={hasParent}
+                      onCheckedChange={(checked) => {
+                        setHasParent(checked);
+                        if (!checked) setParentId(null);
+                      }}
+                    />
+                    <span className="text-sm">Have parent</span>
+                  </div>
+
+                  {/* Combobox (shown only if switch is ON) */}
+                  {hasParent && (
+                    <Popover open={parentOpen} onOpenChange={setParentOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="w-50 justify-between"
+                        >
+                          {parentId
+                            ? mockLevel1.find((c) => c.id === parentId)?.name
+                            : "Select parent"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-50 p-0">
+                        <Command>
+                          <CommandEmpty>No category found.</CommandEmpty>
+                          <CommandGroup>
+                            {mockLevel1.map((cat) => (
+                              <CommandItem
+                                key={cat.id}
+                                value={cat.name}
+                                onSelect={() => {
+                                  setParentId(cat.id);
+                                  setParentOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={`mr-2 h-4 w-4 ${
+                                    parentId === cat.id
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  }`}
+                                />
+                                {cat.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
+              </div>
+              {/* Properties */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Properties</h3>
+                  <Button type="button" onClick={addDrawerProperty} size="sm">
+                    <Plus className="w-4 h-4 mr-2" /> Add Property
+                  </Button>
+                </div>
+
+                {properties.map((prop, index) => (
+                  <div key={prop.label}>
+                    <PropertyComponent
+                      property={prop}
+                      index={index}
+                      onChange={updateDrawerProperty}
+                      onRemove={removeDrawerProperty}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setDrawerOpen(false)}>
+                  Cancel
+                </Button>
+                <Button>Save</Button>
+              </div>
             </div>
-          </div>
-        </DrawerContent>
-      </Drawer>
+          </DrawerContent>
+        </Drawer>
       </div>
     </div>
   );

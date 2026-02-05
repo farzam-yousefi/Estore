@@ -51,10 +51,8 @@ export async function register(
   }
 
   const { email, password } = parsed.data;
-
   const users = await getCollection<DbUser>("users");
-  console.log("+++++++++++++++++++++usersss+++++");
-  console.log(users);
+ 
   if (!users) throw new Error("DB error");
 
   const existing = await users.findOne({ email });

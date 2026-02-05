@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import Image from "next/image";
-
 import { logout } from "@/lib/actions/auths";
 import {
   DropdownMenu,
@@ -15,25 +14,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { LogOut, Settings, User } from "lucide-react";
 import { NavLink } from "./NavLink";
 import Link from "next/link";
-import { getToken } from "next-auth/jwt";
-import { NextRequest } from "next/server";
-import { NextURL } from "next/dist/server/web/next-url";
 
 export default async function Navigation() {
   const session = await auth();
-   console.log("               session");
-    console.log(session);
   const isAuthUser = !!session?.user;
-  
-  const role=(isAuthUser) ? session?.user?.role : "guest";
-
-  // const token = await getToken({
-  //          req:NextURL,
-  //         secret: process.env.NEXTAUTH_SECRET,
-  //       });
-  //       const role = token?.role || "";
-  console.log(isAuthUser);
-  console.log (role);
+  const role = isAuthUser ? session?.user?.role : "guest";
   return (
     <nav>
       <div className="flex">
@@ -48,12 +33,10 @@ export default async function Navigation() {
         <Link href="/"></Link>
       </div>
 
-    {/* //  { (isAuthUser) ? ( */}
-              { ((isAuthUser)&&(role==="user")) ? (
-
+      {/* //  { (isAuthUser) ? ( */}
+      {isAuthUser && role === "user" ? (
         <div className="flex items-center">
           <NavLink label="cart" href="/cart" iconName="ShoppingBasketIcon" />
-
           <NavLink label="Dashboard" href="/dashboard" />
           <button className="nav-link" onClick={logout}>
             Logout

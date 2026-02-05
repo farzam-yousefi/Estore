@@ -6,12 +6,7 @@ import bcrypt from "bcrypt";
 import { getCollection } from "@/lib/db";
 import { DbUser } from "@/lib/user";
 
-export const {
-  handlers,   
-  auth,
-  signIn,
-  signOut,
-} = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true, // IMPORTANT when using proxy
 
   session: {
@@ -38,10 +33,7 @@ export const {
       },
 
       async authorize(credentials) {
-        if (
-          !credentials?.email ||
-          typeof credentials.password !== "string"
-        ) {
+        if (!credentials?.email || typeof credentials.password !== "string") {
           return null;
         }
 
@@ -57,7 +49,7 @@ export const {
 
         const isValid = await bcrypt.compare(
           credentials.password,
-          user.passwordHash
+          user.passwordHash,
         );
 
         if (!isValid) return null;
@@ -93,10 +85,7 @@ export const {
         const existing = await users.findOne({ email: user.email });
 
         // ❌ Block admins from Google login
-        if (
-          existing?.role === "admin" ||
-          existing?.role === "superAdmin"
-        ) {
+        if (existing?.role === "admin" || existing?.role === "superAdmin") {
           return false;
         }
 
@@ -123,10 +112,7 @@ export const {
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as
-          | "superAdmin"
-          | "admin"
-          | "user";
+        session.user.role = token.role as "superAdmin" | "admin" | "user";
       }
       return session;
     },

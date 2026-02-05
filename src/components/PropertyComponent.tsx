@@ -1,5 +1,4 @@
 "use client";
-
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -14,6 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { CategoryProperty } from "@/types/db/dbtypes";
 
+function FieldError({ message }: { message?: string }) {
+  return <p className="text-sm text-destructive min-h-5">{message || ""}</p>;
+}
 export default function PropertyComponent({
   property,
   index,
@@ -28,11 +30,7 @@ export default function PropertyComponent({
     label?: string;
     type?: string;
   };
-  onChange: (
-    index: number,
-    key: keyof CategoryProperty,
-    value: any
-  ) => void;
+  onChange: (index: number, key: keyof CategoryProperty, value: any) => void;
   onRemove: (index: number) => void;
 }) {
   return (
@@ -44,11 +42,8 @@ export default function PropertyComponent({
           value={property.name}
           onChange={(e) => onChange(index, "name", e.target.value)}
         />
-        {errors?.name && (
-          <p className="text-sm text-destructive">{errors.name}</p>
-        )}
+        <FieldError message={errors?.name} />
       </div>
-
       <div className="space-y-2 md:col-span-2">
         <Label>Label</Label>
         <Input
@@ -56,11 +51,8 @@ export default function PropertyComponent({
           value={property.label}
           onChange={(e) => onChange(index, "label", e.target.value)}
         />
-        {errors?.label && (
-          <p className="text-sm text-destructive">{errors.label}</p>
-        )}
+        <FieldError message={errors?.label} />
       </div>
-
       <div className="col-span-full flex items-end gap-6">
         {/* Type */}
         <div className="space-y-2 flex-1">
@@ -80,11 +72,8 @@ export default function PropertyComponent({
               <SelectItem value="date">Date</SelectItem>
             </SelectContent>
           </Select>
-          {errors?.type && (
-            <p className="text-sm text-destructive">{errors.type}</p>
-          )}
+          <FieldError message={errors?.type} />
         </div>
-
         {/* Required */}
         <div className="flex items-center gap-2 pb-1">
           <Switch
@@ -95,7 +84,6 @@ export default function PropertyComponent({
           <Label>Required</Label>
         </div>
       </div>
-
       {/* Options for string type */}
       {property.type === "string" && (
         <div className="space-y-2 md:col-span-3">
@@ -104,9 +92,7 @@ export default function PropertyComponent({
             <Input
               name={`properties[${index}].options`}
               value={property.options || ""}
-              onChange={(e) =>
-                onChange(index, "options", e.target.value)
-              }
+              onChange={(e) => onChange(index, "options", e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
               Comma-separated values shown when creating products
@@ -114,7 +100,6 @@ export default function PropertyComponent({
           </div>
         </div>
       )}
-
       <Button variant="ghost" size="icon" onClick={() => onRemove(index)}>
         <Trash2 className="w-4 h-4 text-red-500" />
       </Button>
