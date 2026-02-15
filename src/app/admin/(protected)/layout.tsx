@@ -48,7 +48,6 @@ export default async function adminLayout({
       disableTransitionOnChange
     >
       <SidebarProvider defaultOpen={defaultOpen}>
-        {/* <AppSidebar role="superAdmin" /> */}
         <ClientOnly>
           <AppSidebar groups={filteredGroups} />
         </ClientOnly>

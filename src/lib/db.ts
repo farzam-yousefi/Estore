@@ -1,7 +1,5 @@
-// lib/db.ts
-
 "use server";
-import { MongoClient, Db, Collection, Document, ObjectId } from "mongodb";
+import { MongoClient, Db, Collection, Document, ObjectId, WithId } from "mongodb";
 
 const uri = process.env.DB_URI!;
 if (!uri) {
@@ -68,3 +66,32 @@ export async function deleteDocument(colName: string, _id: string) {
     throw new Error("Delete was failed");
   }
 }
+////////////////////////////////////////////
+export async function selectDocWithId<T extends Document>(
+  collName: string,
+  id: string
+): Promise <WithId<T>|null> {
+  try {
+    const collection = await getCollection<T>(collName);
+    return await collection.findOne({ _id: new ObjectId(id) } as any);
+  } catch (e) {
+    throw new Error("Select was failed");
+  }
+}
+
+
+
+export async function findIdByName(collName:string , objectName:string):Promise <ObjectId> {
+   try {
+    const collection = await getCollection(collName);
+    const doc= await collection.findOne({ name: objectName , projection:{_id :1}});
+    if (!doc?._id) {
+      throw new Error("Document not found");
+    }
+
+    return doc._id;
+  } catch (e) {
+    throw new Error("Select was failed");
+  }
+}
+

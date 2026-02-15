@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,9 +13,10 @@ import Link from "next/link";
 import { CategoryClient } from "@/types/dto/clientTypes";
 import { CategoryProperty } from "@/types/db/dbtypes";
 import { selectCollectionDos } from "@/lib/db";
-import { deleteCategory } from "@/lib/actions/category";
 import Image from "next/image";
-import CreateCategoryForm, { emptyCategory } from "./CreateCategoryForm";
+import { emptyCategory } from "./CreateEditCategoryForm";
+import { deleteCategory } from "@/lib/actions/category";
+import CreateEditCategoryForm from "./CreateEditCategoryForm";
 
 export default function AdminCategoriesPage() {
   const [open, setOpen] = useState(false);
@@ -62,7 +62,7 @@ export default function AdminCategoriesPage() {
   }, [activeCategory]);
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="p-0.5 md:p-1 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Categories</h1>
@@ -109,7 +109,7 @@ export default function AdminCategoriesPage() {
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-2">
-                      <Link href={`/admin/categories/${cat._id}/subcategory`}>
+                      <Link href={`/admin/categories/subcategories/${cat._id}`}>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -160,8 +160,8 @@ export default function AdminCategoriesPage() {
             </DrawerHeader>
 
             {/* SCROLLABLE AREA */}
-            <div className="p-4 space-y-4 overflow-y-auto h-[calc(100vh-6rem)]">
-              <CreateCategoryForm
+            <div className="p-0.5 space-y-4 overflow-y-auto h-[calc(100vh-6rem)]">
+              <CreateEditCategoryForm
                 props={{
                   activeCategory: normalizedCategory,
                   onCancel: cancel,

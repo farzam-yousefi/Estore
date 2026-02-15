@@ -1,4 +1,4 @@
-import CreateCategoryForm from "@/components/CreateCategoryForm";
+import CreateCategoryForm from "@/components/CreateEditCategoryForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

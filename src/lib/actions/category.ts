@@ -1,10 +1,22 @@
 "use server";
-import { Category, CategoryProperty, PropertyType } from "@/types/db/dbtypes";
+import {
+  Category,
+  CategoryProperty,
+  SubCategory,
+} from "@/types/db/dbtypes";
 import { CategoryFormSchema, CategoryFormSchemaWithoutProp } from "../rules";
 import { uploadImage } from "../uploadImg";
-import { deleteDocument, getCollection, insertInCollection } from "../db";
-import { CategoryClient } from "@/types/dto/clientTypes";
+import {
+  deleteDocument,
+  findIdByName,
+  getCollection,
+  insertInCollection,
+  selectCollectionDos,
+  selectDocWithId,
+} from "../db";
+import { SubCategoryClient } from "@/types/dto/clientTypes";
 import { ObjectId } from "mongodb";
+
 export type State = {
   message: string;
   errors?: CategoryErrors;
@@ -31,6 +43,17 @@ type imgObject = {
   imgPath: string | null;
   imgErr: string | null;
 };
+
+function isCategory(obj: Category | SubCategory): obj is Category {
+  return "baseProperties" in obj;
+}
+
+function toObjectId(id: unknown): ObjectId {
+  if (typeof id !== "string" || !ObjectId.isValid(id)) {
+    throw new Error("Invalid ObjectId");
+  }
+  return new ObjectId(id);
+}
 
 function parseProperties(formData: FormData) {
   const entries = Array.from(formData.entries());
@@ -88,15 +111,23 @@ async function extractDateForm(
   };
 }
 
-async function validatingfunction(
-  prevState: State | null,
-  catObject: Category,
+async function validatingFunction(
+  catObject: Category | SubCategory,
   imgErr: string | null,
 ): Promise<State | null> {
-  const hasProperties = catObject.baseProperties?.length > 0;
   const catName = catObject.name;
   const catSlug = catObject.slug;
-  const properties = catObject.baseProperties;
+
+  let properties;
+
+  if (isCategory(catObject)) {
+    properties = catObject.baseProperties;
+  } else {
+    properties = catObject.extraProperties;
+  }
+
+  const hasProperties = properties && properties.length > 0;
+
   const validated = hasProperties
     ? CategoryFormSchema.safeParse({ catName, catSlug, properties })
     : CategoryFormSchemaWithoutProp.safeParse({ catName, catSlug });
@@ -166,6 +197,7 @@ async function validatingfunction(
 
   return null;
 }
+
 export async function add_updateCategory(
   prevState: State | null,
   formData: FormData,
@@ -173,12 +205,13 @@ export async function add_updateCategory(
   if (formData.get("catId") === "") return addCategory(prevState, formData);
   else return updateCategory(prevState, formData);
 }
+
 export async function addCategory(
   prevState: State | null,
   formData: FormData,
 ): Promise<State | null> {
   const { catObject, imgErr } = await extractDateForm(formData);
-  const result = await validatingfunction(prevState, catObject, imgErr);
+  const result = await validatingFunction(catObject, imgErr);
 
   if (result) return result;
 
@@ -203,7 +236,7 @@ export async function updateCategory(
   const catId = formData.get("catId") as string;
 
   const { catObject, imgErr } = await extractDateForm(formData);
-  const result = await validatingfunction(prevState, catObject, imgErr);
+  const result = await validatingFunction(catObject, imgErr);
 
   if (result) return result;
 
@@ -234,6 +267,101 @@ export async function updateCategory(
     },
   };
 }
+
 export async function deleteCategory(colName: string, _id: string) {
   await deleteDocument(colName, _id);
+}
+
+export async function getCategory(id: string): Promise<Category| null> {
+  return selectDocWithId("categories", id);
+}
+
+export async function getSubcats(id: string): Promise<SubCategoryClient[]> {
+  const collection = await getCollection<SubCategory>("subcategories");
+
+  const data = await collection
+    .find({ masterCategoryId: new ObjectId(id) })
+    .toArray();
+
+  return data.map((doc) => ({
+    ...doc,
+    _id: doc._id!.toString(),
+    parentId: doc.parentId ? doc.parentId.toString() : null,
+    masterCategoryId: doc.masterCategoryId.toString(),
+  }));
+}
+
+//subcategory actions
+//fetchALLLLLsubcats
+export async function fetchSubcategories(
+  categoryId: string,
+): Promise<SubCategoryClient[]> {
+  const data = await selectCollectionDos<SubCategoryClient>("subcategories");
+  return data;
+}
+
+async function extractDateForm_subCat(
+  formData: FormData,
+): Promise<{ subcatObject: SubCategory; imgErr: string | null }> {
+  const masterCategoryId = formData.get("catId");
+  const parentName = formData.get("parentName") as string;
+  const catName = formData.get("catName") as string;
+  const catSlug = formData.get("catSlug") as string;
+
+  const properties = parseProperties(formData);
+  const file = formData.get("image") as File | null;
+  const oldImage = formData.get("existingImage") as string | null;
+
+  let image_: imgObject = { imgPath: null, imgErr: null };
+
+  if (file && file.size > 0) {
+    image_ = await uploadImage(file, catSlug, { folder: "categories" });
+  } else if (oldImage) {
+    image_.imgPath = oldImage.replace("/uploads/categories/", "");
+  }
+
+  // if (file) image_ = await uploadImage(file, catSlug, { folder: "categories" });
+
+  const parentId = parentName
+    ? await findIdByName("subcategories", parentName)
+    : null;
+  const subcatObject = {
+    name: catName,
+    slug: catSlug,
+    image: image_.imgPath,
+    extraProperties: properties,
+    parentId: parentId,
+    masterCategoryId: toObjectId(formData.get("catId")),
+    level: parentId ? 3 : 2,
+  };
+  return {
+    subcatObject,
+    imgErr: image_.imgErr,
+  };
+}
+
+export async function addSubcategory(
+  prevState: State | null,
+  formData: FormData,
+): Promise<State | null> {
+  const { subcatObject, imgErr } = await extractDateForm_subCat(formData);
+
+  const parentName = formData.get("parentName") as string;
+
+  const result = await validatingFunction(subcatObject, imgErr);
+
+  if (result) return result;
+
+  await insertInCollection("subcategories", subcatObject);
+
+  return {
+    message: "SubCategory was added successfully",
+    errors: undefined,
+    defaultValues: {
+      catName: undefined,
+      catSlug: undefined,
+      catImage: undefined,
+      properties: undefined,
+    },
+  };
 }

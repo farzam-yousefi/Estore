@@ -21,8 +21,10 @@ export type Category = {
 };
 
 export type SubCategory = {
-  _id: ObjectId;
+  _id?: ObjectId;
   name: string;
+  slug: string;
+  image?: string | null;
   parentId: ObjectId | null;
   masterCategoryId: ObjectId;
   level: number;

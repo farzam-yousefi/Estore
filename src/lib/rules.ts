@@ -40,12 +40,12 @@ export const PropertySchema = z.object({
 });
 
 export const CategoryFormSchema = z.object({
-  catName: z.string().min(1, "Category name is required"),
+  catName: z.string().min(1, "Name is required"),
   catSlug: z.string().min(1, "Slug is required"),
   properties: z.array(PropertySchema).min(1),
 });
 
 export const CategoryFormSchemaWithoutProp = z.object({
-  catName: z.string().min(1, "Category name is required"),
+  catName: z.string().min(1, "Name is required"),
   catSlug: z.string().min(1, "Slug is required"),
 });

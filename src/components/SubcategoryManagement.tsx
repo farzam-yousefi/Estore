@@ -34,10 +34,14 @@ import {
 import { ArrowLeft, Plus, Trash } from "lucide-react";
 import PropertyComponent from "./PropertyComponent";
 import { CategoryProperty, PropertyType } from "@/types/db/dbtypes";
+import CreateSubcategoryForm from "./CreateSubcategoryForm";
+import { selectCollectionDos } from "@/lib/db";
+import { CategoryClient } from "@/types/dto/clientTypes";
 
 type MasterCategory = {
-  id: string;
+  _id: string;
   name: string;
+  slug: string;
   baseProperties: CategoryProperty[];
 };
 
@@ -50,8 +54,10 @@ type SubCategory = {
 };
 
 const mockMasterCategory: MasterCategory = {
-  id: "m1",
+  // id: "m1",
+  _id :"697f6f882bb9d09d93022d50",
   name: "Electronics",
+  slug :"Electronics",
   baseProperties: [
     { name: "brand", label: "Brand", type: "string", required: true },
     { name: "warranty", label: "Warranty", type: "number", required: false },
@@ -113,7 +119,7 @@ export default function SubcategoryManagementPage({
   const [selectedLevel1, setSelectedLevel1] = useState<string | null>(null);
   const [selectedLevel2, setSelectedLevel2] = useState<string | null>(null);
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  // const [drawerOpen, setOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<"add" | "edit">("add");
 
   const [activeSub, setActiveSub] = useState<SubCategory | null>(null);
@@ -144,6 +150,19 @@ export default function SubcategoryManagementPage({
   const filteredLevel2 = level2.filter(
     (item) => item.parentId === selectedLevel1,
   );
+//*********************
+ const fetchCategories = async () => {
+    const data = await selectCollectionDos<CategoryClient>("categories");
+    // setCategories(data ?? []);
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  //************************** */
+
+
 
   // ----------------------------
   // BASE PROPERTIES (correct)
@@ -164,9 +183,10 @@ export default function SubcategoryManagementPage({
     setDrawerMode(mode);
     setActiveSub(sub ?? null);
     setExtraProperties(sub?.extraProperties ?? []);
-    setDrawerOpen(true);
+    setOpen(true);
   };
-
+  const [open, setOpen] = useState(false);
+  const cancel = () => setOpen(false);
   const [properties, setProperties] = useState<CategoryProperty[]>([]);
 
   const addDrawerProperty = () => {
@@ -548,11 +568,7 @@ export default function SubcategoryManagementPage({
       {/* Drawer (Add / Edit) */}
 
       <div className="@container/container space-y-4">
-        <Drawer
-          open={drawerOpen}
-          onOpenChange={setDrawerOpen}
-          direction="right"
-        >
+       <Drawer open={open} onOpenChange={setOpen} direction="right">
           <DrawerContent
             className="
     w-full
@@ -563,112 +579,23 @@ export default function SubcategoryManagementPage({
   "
           >
             {/* <DrawerContent className="w-full max-w-md ml-auto"> */}
-            <DrawerHeader>
+            {/* <DrawerHeader>
               <DrawerTitle>
                 {drawerMode === "add" ? "Add Subcategory" : "Edit Subcategory"}
               </DrawerTitle>
             </DrawerHeader>
+             */}
+               {/* SCROLLABLE AREA */}
 
-            <div className="p-4 space-y-4 overflow-y-auto h-[calc(100vh-6rem)]">
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Name</label>
-                <Input placeholder="e.g. Smartphones" />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Slug</label>
-                <Input placeholder="e.g. smartphones" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Parent Category</label>
-
-                <div className="flex items-center gap-4">
-                  {/* Have Parent Switch */}
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={hasParent}
-                      onCheckedChange={(checked) => {
-                        setHasParent(checked);
-                        if (!checked) setParentId(null);
-                      }}
-                    />
-                    <span className="text-sm">Have parent</span>
-                  </div>
-
-                  {/* Combobox (shown only if switch is ON) */}
-                  {hasParent && (
-                    <Popover open={parentOpen} onOpenChange={setParentOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className="w-50 justify-between"
-                        >
-                          {parentId
-                            ? mockLevel1.find((c) => c.id === parentId)?.name
-                            : "Select parent"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-
-                      <PopoverContent className="w-50 p-0">
-                        <Command>
-                          <CommandEmpty>No category found.</CommandEmpty>
-                          <CommandGroup>
-                            {mockLevel1.map((cat) => (
-                              <CommandItem
-                                key={cat.id}
-                                value={cat.name}
-                                onSelect={() => {
-                                  setParentId(cat.id);
-                                  setParentOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={`mr-2 h-4 w-4 ${
-                                    parentId === cat.id
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  }`}
-                                />
-                                {cat.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                </div>
-              </div>
-              {/* Properties */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Properties</h3>
-                  <Button type="button" onClick={addDrawerProperty} size="sm">
-                    <Plus className="w-4 h-4 mr-2" /> Add Property
-                  </Button>
-                </div>
-
-                {properties.map((prop, index) => (
-                  <div key={prop.label}>
-                    <PropertyComponent
-                      property={prop}
-                      index={index}
-                      onChange={updateDrawerProperty}
-                      onRemove={removeDrawerProperty}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setDrawerOpen(false)}>
-                  Cancel
-                </Button>
-                <Button>Save</Button>
-              </div>
-            </div>
+            <div className="p-0.5 space-y-4 overflow-y-auto h-[calc(100vh-6rem)]">
+                   <CreateSubcategoryForm
+                     props={{
+                      activeCategory :mockMasterCategory,
+                                             onCancel: cancel,
+                    //   onSuccess: fetchCategories, // 👈 ADD THIS
+                     }}
+                   />
+                   </div>
           </DrawerContent>
         </Drawer>
       </div>
