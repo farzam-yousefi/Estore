@@ -28,20 +28,17 @@ import {
 
 import { Label } from "@/components/ui/label";
 
-import { CategoryProperty} from "@/types/db/dbtypes";
-import {
-  State,
-  addSubcategory,
-} from "@/lib/actions/category";
+import { CategoryProperty } from "@/types/db/dbtypes";
+import { State, addSubcategory } from "@/lib/actions/category";
 import PropertyComponent from "./PropertyComponent";
 import Image from "next/image";
-import { CategoryClient } from "@/types/dto/clientTypes";
+import { CategoryClient, CategoryPropertyForm } from "@/types/dto/clientTypes";
 import { emptyCategory } from "./CreateEditCategoryForm";
 
 export const fakeCancel = () => {};
 
 type CategoryDrawerProps = {
-  activeCategory?: CategoryClient; // optional
+  activeCategory?: { id: string; name: string }; // optional
   onCancel?: () => void; //optional
   onSuccess?: () => void; //optional
 };
@@ -51,15 +48,18 @@ export default function CreateSubCategoryForm({
 }: {
   props?: CategoryDrawerProps;
 }) {
- 
   const category = props?.activeCategory;
   const onCancel = props?.onCancel ?? fakeCancel;
-  const [name, setName] = useState(category?.name);
-  const [slug, setSlug] = useState(category?.slug);
+  // const [name, setName] = useState(category?.name);
+  // const [slug, setSlug] = useState(category?.slug);
   const [properties, setProperties] = useState(emptyCategory?.baseProperties);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    category?.image || null,
-  );
+  // const [imagePreview, setImagePreview] = useState<string | null>(
+  //   category?.image || null,
+  // );
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  // const [properties, setProperties] = useState([]);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   type SubCategory = {
     id: string;
     name: string;
@@ -97,14 +97,14 @@ export default function CreateSubCategoryForm({
   const addProperty = () => {
     setProperties((prev) => [
       ...prev,
-      { name: "", label: "", type: "string", required: false, options: [] },
+      { name: "", label: "", type: "string", required: false, options: "" },
     ]);
   };
 
   // Update property field
   const updateProperty = (
     index: number,
-    key: keyof CategoryProperty,
+    key: keyof CategoryPropertyForm,
     value: any,
   ) => {
     setProperties((prev) =>
@@ -133,7 +133,7 @@ export default function CreateSubCategoryForm({
       setName(state.defaultValues.catName || "");
       setSlug(state.defaultValues.catSlug || "");
       setImagePreview(state.defaultValues.catImage || "");
-      setProperties(state.defaultValues.properties || []);
+      setProperties(state.defaultValues.catProperties || []);
     }
   }, [state?.defaultValues]);
 
@@ -153,13 +153,19 @@ export default function CreateSubCategoryForm({
       <form action={formAction}>
         <Card className="max-w-4xl mx-auto">
           <CardHeader>
-            <CardTitle>{`Create Subcategory for  ${category?.name} Category`}</CardTitle>
+            <CardTitle>
+              Create Subcategory for
+              <h3 className="text-gray-600 font-semibold text-lg ">
+                {" "}
+                {category?.name}
+              </h3>
+            </CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-6">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="hidden" name="catId" value={category?._id} />
+              <input type="hidden" name="catId" value={category?.id} />
               <div className="space-y-2">
                 <Label>Name</Label>
                 <Input

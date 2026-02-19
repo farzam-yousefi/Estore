@@ -56,7 +56,7 @@ export default async function adminLayout({
             {" "}
             <Navbar />
           </SessionProvider>
-          <div className="px-4">{children}</div>
+          <div className="px-2">{children}</div>
         </main>
       </SidebarProvider>
     </ThemeProvider>

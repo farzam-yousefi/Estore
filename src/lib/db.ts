@@ -1,5 +1,7 @@
+// lib/db.ts
 "use server";
 import { MongoClient, Db, Collection, Document, ObjectId, WithId } from "mongodb";
+import { object } from "zod";
 
 const uri = process.env.DB_URI!;
 if (!uri) {
@@ -41,9 +43,9 @@ export async function insertInCollection(collName: string, object: object) {
   }
 }
 
-export async function selectCollectionDos<T extends Document>(
+export async function selectCollectionDocs<T extends Document>(
   collName: string,
-): Promise<(Omit<T, "_id"> & { _id: string })[]> {
+): Promise<(Omit<T, "_id"> & { id: string })[]> {
   try {
     const collection = await getCollection<T>(collName);
     const data = await collection.find({}).toArray();
@@ -51,7 +53,7 @@ export async function selectCollectionDos<T extends Document>(
     // Convert ObjectId to string
     return data.map((doc) => ({
       ...doc,
-      _id: doc._id.toString(),
+      id: doc._id.toString(),
     }));
   } catch (e) {
     throw new Error("Select was failed");
@@ -71,6 +73,7 @@ export async function selectDocWithId<T extends Document>(
   collName: string,
   id: string
 ): Promise <WithId<T>|null> {
+  console.log("fffff",id)
   try {
     const collection = await getCollection<T>(collName);
     return await collection.findOne({ _id: new ObjectId(id) } as any);
@@ -94,4 +97,34 @@ export async function findIdByName(collName:string , objectName:string):Promise 
     throw new Error("Select was failed");
   }
 }
+
+export function mapDocToClient<T extends { _id: ObjectId }>(
+  doc: T
+): Omit<T, "_id"> & {id: string } {
+  return {
+    ...doc,
+    id: doc._id.toString(),
+  };
+}
+
+export function convertObjectId<T extends { _id: ObjectId }>(
+  doc: T
+): Omit<T, "_id"> & { id: string } {
+  const { _id, ...rest } = doc;
+  return {
+    ...rest,
+    id: _id.toString(),
+  };
+}
+
+// export function convertObjectId<T extends { _id?: ObjectId }>(
+//   doc: T
+// ): Omit<T, "_id"> & { id?: string } {
+//   const { _id, ...rest } = doc;
+
+//   return {
+//     ...rest,
+//     id: _id?.toString(),
+//   };
+// }
 

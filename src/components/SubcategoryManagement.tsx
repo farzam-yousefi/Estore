@@ -1,5 +1,16 @@
 "use client";
-import { Switch } from "@/components/ui/switch";
+
+import { useEffect, useMemo, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import PropertyComponent from "@/components/PropertyComponent";
+import {
+  CategoryClient,
+  CategoryPropertyForm,
+  SubCategoryClient,
+} from "@/types/dto/clientTypes";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Plus } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -7,234 +18,170 @@ import {
 } from "@/components/ui/popover";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Check } from "lucide-react";
+import CreateSubcategoryForm from "./CreateSubcategoryForm";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { ArrowLeft, Plus, Trash } from "lucide-react";
-import PropertyComponent from "./PropertyComponent";
-import { CategoryProperty, PropertyType } from "@/types/db/dbtypes";
-import CreateSubcategoryForm from "./CreateSubcategoryForm";
-import { selectCollectionDos } from "@/lib/db";
-import { CategoryClient } from "@/types/dto/clientTypes";
 
-type MasterCategory = {
-  _id: string;
-  name: string;
-  slug: string;
-  baseProperties: CategoryProperty[];
+type Props = {
+  category: CategoryClient;
+  subCats: SubCategoryClient[];
 };
 
-type SubCategory = {
-  id: string;
-  name: string;
-  parentId: string | null;
-  properties: CategoryProperty[]; // for level 1
-  extraProperties?: CategoryProperty[]; // for level 2
-};
-
-const mockMasterCategory: MasterCategory = {
-  // id: "m1",
-  _id :"697f6f882bb9d09d93022d50",
-  name: "Electronics",
-  slug :"Electronics",
-  baseProperties: [
-    { name: "brand", label: "Brand", type: "string", required: true },
-    { name: "warranty", label: "Warranty", type: "number", required: false },
-  ],
-};
-
-const mockLevel1: SubCategory[] = [
-  {
-    id: "l1-1",
-    name: "Phones",
-    parentId: null,
-    properties: [
-      { name: "battery", label: "Battery", type: "number", required: true },
-      { name: "screen", label: "Screen Size", type: "string", required: true },
-    ],
-  },
-  {
-    id: "l1-2",
-    name: "Laptops",
-    parentId: null,
-    properties: [
-      { name: "ram", label: "RAM (GB)", type: "number", required: true },
-      { name: "cpu", label: "CPU", type: "string", required: true },
-    ],
-  },
-];
-
-const mockLevel2: SubCategory[] = [
-  {
-    id: "l2-1",
-    name: "Smartphones",
-    parentId: "l1-1",
-    properties: [], // not used
-    extraProperties: [
-      { name: "camera", label: "Camera", type: "number", required: false },
-    ],
-  },
-  {
-    id: "l2-2",
-    name: "Feature Phones",
-    parentId: "l1-1",
-    properties: [],
-    extraProperties: [
-      { name: "dualSim", label: "Dual SIM", type: "boolean", required: true },
-    ],
-  },
-];
+function normalizeOptionsToString(options: unknown): string {
+  if (Array.isArray(options)) {
+    return options.join(", ");
+  }
+  if (typeof options === "string") {
+    return options;
+  }
+  return "";
+}
 
 export default function SubcategoryManagementPage({
-  params,
-}: {
-  params: { categoryId: string };
-}) {
+  category,
+  subCats,
+}: Props) {
   const router = useRouter();
-  const categoryId = params.categoryId;
+  const [open, setOpen] = useState(false);
+  const cancel = () => setOpen(false);
 
-  const [level1, setLevel1] = useState<SubCategory[]>([]);
-  const [level2, setLevel2] = useState<SubCategory[]>([]);
-  const [selectedLevel1, setSelectedLevel1] = useState<string | null>(null);
-  const [selectedLevel2, setSelectedLevel2] = useState<string | null>(null);
-
-  // const [drawerOpen, setOpen] = useState(false);
-  const [drawerMode, setDrawerMode] = useState<"add" | "edit">("add");
-
-  const [activeSub, setActiveSub] = useState<SubCategory | null>(null);
-  const [extraProperties, setExtraProperties] = useState<CategoryProperty[]>(
-    [],
-  );
-
-  const [selectedLevel1Id, setSelectedLevel1Id] = useState<string | null>(null);
-  const [selectedLevel2Id, setSelectedLevel2Id] = useState<string | null>(null);
-  const [level1Value, setLevel1Value] = useState("");
-  const [level2Value, setLevel2Value] = useState("");
-
-  const [hasParent, setHasParent] = useState(false);
-  const [parentId, setParentId] = useState<string | null>(null);
-  const [parentOpen, setParentOpen] = useState(false);
-
-  // Fetch mock data
-  useEffect(() => {
-    setLevel1(mockLevel1);
-    setLevel2(mockLevel2);
-  }, [categoryId]);
-
-  // When level1 changes, clear level2
-  useEffect(() => {
-    setSelectedLevel2(null);
-  }, [selectedLevel1]);
-
-  const filteredLevel2 = level2.filter(
-    (item) => item.parentId === selectedLevel1,
-  );
-//*********************
- const fetchCategories = async () => {
-    const data = await selectCollectionDos<CategoryClient>("categories");
-    // setCategories(data ?? []);
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  //************************** */
-
-
-
-  // ----------------------------
-  // BASE PROPERTIES (correct)
-  // ----------------------------
-  //   const extraProperties = useMemo(() => {
-  //     const level1Item = level1.find((x) => x.id === selectedLevel1);
-  //     const level1Props = level1Item?.properties ?? [];
-
-  //     // Combine master + level1
-  //     return [...mockMasterCategory.baseProperties, ...level1Props];
-  //   }, [level1, selectedLevel1]);
-
-  const selectedLevel2Item = useMemo(() => {
-    return level2.find((x) => x.id === selectedLevel2) ?? null;
-  }, [level2, selectedLevel2]);
-
-  const openDrawer = (mode: "add" | "edit", sub?: SubCategory) => {
-    setDrawerMode(mode);
+  const [activeSub, setActiveSub] = useState<SubCategoryClient | null>(null);
+  const [extraProperties, setExtraProperties] = useState<
+    CategoryPropertyForm[]
+  >([]);
+  const openDrawer = (mode: "add" | "edit", sub?: SubCategoryClient) => {
     setActiveSub(sub ?? null);
     setExtraProperties(sub?.extraProperties ?? []);
     setOpen(true);
   };
-  const [open, setOpen] = useState(false);
-  const cancel = () => setOpen(false);
-  const [properties, setProperties] = useState<CategoryProperty[]>([]);
 
-  const addDrawerProperty = () => {
-    setProperties([
-      ...properties,
-      { name: "", label: "", type: "string", required: false, options: [] },
-    ]);
-  };
-  const updateDrawerProperty = <K extends keyof CategoryProperty>(
-    index: number,
-    key: K,
-    value: CategoryProperty[K],
-  ) => {
-    setProperties((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, [key]: value } : p)),
+  /* -------------------------------- */
+  /* SUBCATEGORY SELECTION STATE      */
+  /* -------------------------------- */
+  const [selectedLevel1Id, setSelectedLevel1Id] = useState<string | null>(null);
+  const [selectedLevel2Id, setSelectedLevel2Id] = useState<string | null>(null);
+  const [selectedLevel1Value, setSelectedLevel1Value] = useState<string>("");
+  const [selectedLevel2Value, setSelectedLevel2Value] = useState<string>("");
+
+  /* -------------------------------- */
+  /* PROPERTY STATE                   */
+  /* -------------------------------- */
+  const [level1Properties, setLevel1Properties] = useState<
+    CategoryPropertyForm[]
+  >([]);
+  const [level2Properties, setLevel2Properties] = useState<
+    CategoryPropertyForm[]
+  >([]);
+
+  /* -------------------------------- */
+  /* FILTER SUBCATS                   */
+  /* -------------------------------- */
+  const level1Subcats = useMemo(
+    () => subCats.filter((s) => s.level === 2),
+    [subCats],
+  );
+
+  const level2Subcats = useMemo(
+    () =>
+      subCats.filter((s) => s.level === 3 && s.parentId === selectedLevel1Id),
+    [subCats, selectedLevel1Id],
+  );
+
+  /* -------------------------------- */
+  /* LOAD PROPERTIES ON SELECTION     */
+  /* -------------------------------- */
+  // When Level1 changes
+  useEffect(() => {
+    if (!selectedLevel1Id) {
+      setLevel1Properties([]);
+      setLevel2Properties([]);
+      setSelectedLevel2Id(null);
+      return;
+    }
+
+    const selected = level1Subcats.find((s) => s.id === selectedLevel1Id);
+
+    setLevel1Properties(
+      (selected?.extraProperties ?? []).map((p) => ({
+        ...p,
+        options: normalizeOptionsToString(p.options),
+      })),
     );
-  };
+    setLevel2Properties([]);
+    setSelectedLevel2Id(null);
+  }, [selectedLevel1Id, level1Subcats]);
 
-  const removeDrawerProperty = (index: number) => {
-    setProperties((prev) => prev.filter((_, i) => i !== index));
-  };
+  // When Level2 changes
+  useEffect(() => {
+    if (!selectedLevel2Id) {
+      setLevel2Properties([]);
+      return;
+    }
 
-  const addProperty = () => {
-    setExtraProperties((prev) => [
-      ...prev,
-      { name: "", label: "", type: "string", required: false },
-    ]);
-  };
+    const selected = level2Subcats.find((s) => s.id === selectedLevel2Id);
 
-  const updateProperty = (
+    setLevel2Properties(
+      (selected?.extraProperties ?? []).map((p) => ({
+        ...p,
+        options: normalizeOptionsToString(p.options),
+      })),
+    );
+  }, [selectedLevel2Id, level2Subcats]);
+
+  /* -------------------------------- */
+  /* PROPERTY HANDLERS                */
+  /* -------------------------------- */
+  function handlePropertyChange(
+    level: 1 | 2,
     index: number,
-    key: keyof CategoryProperty,
+    key: keyof CategoryPropertyForm,
     value: any,
-  ) => {
-    setExtraProperties((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, [key]: value } : p)),
+  ) {
+    const setter = level === 1 ? setLevel1Properties : setLevel2Properties;
+
+    setter((prev) =>
+      prev.map((prop, i) => (i === index ? { ...prop, [key]: value } : prop)),
     );
-  };
+  }
 
-  const removeProperty = (index: number) => {
-    setExtraProperties((prev) => prev.filter((_, i) => i !== index));
-  };
+  function handleRemove(level: 1 | 2, index: number) {
+    const setter = level === 1 ? setLevel1Properties : setLevel2Properties;
 
+    setter((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function handleAdd(level: 1 | 2) {
+    const setter = level === 1 ? setLevel1Properties : setLevel2Properties;
+
+    setter((prev) => [
+      ...prev,
+      {
+        name: "",
+        label: "",
+        type: "string",
+        required: false,
+        options: "",
+      },
+    ]);
+  }
+
+  /* -------------------------------- */
+  /* RENDER                           */
+  /* -------------------------------- */
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-0.5">
           <Button
             variant="ghost"
             size="icon"
@@ -242,7 +189,11 @@ export default function SubcategoryManagementPage({
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-xl font-semibold">Subcategories of </h1>
+          <h2 className="text-xl font-semibold ">Subcategories of </h2>
+          <h3 className="text-gray-600 font-semibold text-lg ">
+            {" "}
+            &nbsp;&nbsp; {category?.name}{" "}
+          </h3>
         </div>
 
         <Button
@@ -259,54 +210,32 @@ export default function SubcategoryManagementPage({
       <Card className="p-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Level 1 */}
-          {/* <div className="space-y-2">
-            <label className="text-sm font-medium">Level 1 Subcategory</label>
-            <Select
-              value={selectedLevel1 ?? ""}
-              onValueChange={(value) => setSelectedLevel1(value || null)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select level 1 subcategory" />
-              </SelectTrigger>
-              <SelectContent>
-                {level1.map((item) => (
-                  <SelectItem key={item.id} value={item.id}>
-                    {item.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div> */}
-
-          {/* Level 1 */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Level 1 Subcategory</label>
-
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
-                  {level1Value || "Type or select level 1"}
+                  {selectedLevel1Value || "Type or select level 1"}
                 </Button>
               </PopoverTrigger>
-
               <PopoverContent className="w-full p-0">
                 <Command>
                   <CommandInput
                     placeholder="Type level 1 name..."
-                    value={level1Value}
-                    onValueChange={setLevel1Value}
+                    value={selectedLevel1Value}
+                    onValueChange={setSelectedLevel1Value}
                   />
-
                   <CommandGroup>
-                    {level1.map((item) => (
+                    {level1Subcats.map((item) => (
                       <CommandItem
                         key={item.id}
                         value={item.name}
                         onSelect={() => {
-                          setLevel1Value(item.name);
+                          setSelectedLevel1Value(item.name);
                           setSelectedLevel1Id(item.id);
-                          setLevel2Value("");
+                          setSelectedLevel2Value("");
                           setSelectedLevel2Id(null);
+                          // fetchLevel2subCats(selectedLevel1Id);
                         }}
                       >
                         {item.name}
@@ -322,33 +251,8 @@ export default function SubcategoryManagementPage({
           </div>
 
           {/* Level 2 */}
-          {/* <div className="space-y-2">
-            <label className="text-sm font-medium">Level 2 Subcategory</label>
-            <Select
-              value={selectedLevel2 ?? ""}
-              onValueChange={(value) => setSelectedLevel2(value || null)}
-              disabled={!selectedLevel1}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue
-                  placeholder={
-                    !selectedLevel1 ? "Select level 1 first" : "Select level 2"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredLevel2.map((item) => (
-                  <SelectItem key={item.id} value={item.id}>
-                    {item.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div> */}
-          {/* Level 2 */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Level 2 Subcategory</label>
-
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -356,28 +260,26 @@ export default function SubcategoryManagementPage({
                   className="w-full justify-between"
                   disabled={!selectedLevel1Id}
                 >
-                  {level2Value ||
+                  {selectedLevel2Value ||
                     (selectedLevel1Id
                       ? "Type or select level 2"
                       : "Select level 1 first")}
                 </Button>
               </PopoverTrigger>
-
               <PopoverContent className="w-full p-0">
                 <Command>
                   <CommandInput
                     placeholder="Type level 2 name..."
-                    value={level2Value}
-                    onValueChange={setLevel2Value}
+                    value={selectedLevel2Value}
+                    onValueChange={setSelectedLevel2Value}
                   />
-
                   <CommandGroup>
-                    {filteredLevel2.map((item) => (
+                    {level2Subcats.map((item) => (
                       <CommandItem
                         key={item.id}
                         value={item.name}
                         onSelect={() => {
-                          setLevel2Value(item.name);
+                          setSelectedLevel2Value(item.name);
                           setSelectedLevel2Id(item.id);
                         }}
                       >
@@ -395,180 +297,144 @@ export default function SubcategoryManagementPage({
         </div>
       </Card>
 
-      {/* Properties Section */}
-      <Card className="p-4">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Properties</h2>
-            <Button variant="outline" onClick={addProperty}>
-              <Plus className="mr-2 h-4 w-4" /> Add Property
-            </Button>
-          </div>
-
-          {/* Base properties */}
-          <div>
-            <p className="text-xs font-semibold mb-2">
-              Base Properties (Master Category)
+      {/* Base properties */}
+      <div>
+        <p className="text-xs font-semibold mb-2">
+          Base Properties (Master Category)
+        </p>
+        <Card className="p-3 space-y-2">
+          {category.baseProperties.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              Select Level 1 to see base properties.
             </p>
-            <Card className="p-3 space-y-2">
-              {mockMasterCategory.baseProperties.length === 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  Select Level 1 to see base properties.
-                </p>
-              ) : (
-                mockMasterCategory.baseProperties.map((p, idx) => (
-                  <div
-                    key={idx}
-                    className="flex justify-between items-center text-sm"
-                  >
-                    <span>{p.label}</span>
-                    <span className="text-muted-foreground text-xs">
-                      {p.type}
-                    </span>
-                  </div>
-                ))
-              )}
-            </Card>
-          </div>
-          {/* level1 properties (editable) */}
-          <div>
-            <p className="text-xs font-semibold mb-2">Level1 Properties</p>
-            <Card className="p-3 space-y-3">
-              {mockLevel1.map((item) =>
-                item.properties.map((prop, idx) => (
-                  // mockLevel1.map((prop, idx) => (
-                  <div
-                    key={idx}
-                    className="grid grid-cols-12 gap-2 items-center"
-                  >
-                    <Input
-                      className="col-span-4"
-                      value={prop.name}
-                      placeholder="Name"
-                      onChange={(e) =>
-                        updateProperty(idx, "name", e.target.value)
-                      }
-                    />
-                    <Input
-                      className="col-span-4"
-                      value={prop.label}
-                      placeholder="Label"
-                      onChange={(e) =>
-                        updateProperty(idx, "label", e.target.value)
-                      }
-                    />
+          ) : (
+            category.baseProperties.map((p, idx) => (
+              <div
+                key={idx}
+                className="flex justify-between items-center text-sm"
+              >
+                <span>{p.label}</span>
+                <span className="text-muted-foreground text-xs">{p.type}</span>
+              </div>
+            ))
+          )}
+        </Card>
+      </div>
 
-                    <Select
-                      value={prop.type}
-                      onValueChange={(val) =>
-                        updateProperty(idx, "type", val as PropertyType)
-                      }
-                    >
-                      <SelectTrigger className="w-full col-span-2">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="string">string</SelectItem>
-                        <SelectItem value="number">number</SelectItem>
-                        <SelectItem value="boolean">boolean</SelectItem>
-                        <SelectItem value="date">date</SelectItem>
-                      </SelectContent>
-                    </Select>
+      {/* LEVEL 1 CARD */}
+      <Card className="p-4 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <h3 className="text-lg font-semibold">Level 1 Properties</h3>
+          <Button variant="outline" onClick={() => handleAdd(1)}>
+            Add Property
+          </Button>
+        </div>
+        {level1Properties.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            There is no property yet.
+          </p>
+        )}
 
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="col-span-2"
-                      onClick={() => removeProperty(idx)}
-                    >
-                      <Trash className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                )),
-              )}
-            </Card>
-          </div>
-          {/* Extra properties (editable) */}
-          <div>
-            <p className="text-xs font-semibold mb-2">Level2 Properties</p>
-            <Card className="p-3 space-y-3">
-              {extraProperties.map((prop, idx) => (
-                <div key={idx} className="grid grid-cols-12 gap-2 items-center">
-                  <Input
-                    className="col-span-4"
-                    value={prop.name}
-                    placeholder="Name"
-                    onChange={(e) =>
-                      updateProperty(idx, "name", e.target.value)
-                    }
-                  />
-                  <Input
-                    className="col-span-4"
-                    value={prop.label}
-                    placeholder="Label"
-                    onChange={(e) =>
-                      updateProperty(idx, "label", e.target.value)
-                    }
-                  />
+        <div className="space-y-4">
+          {level1Properties.map((property, index) => (
+            <PropertyComponent
+              property={property}
+              index={index}
+              onChange={(i, k, v) => handlePropertyChange(1, i, k, v)}
+              onRemove={(i) => handleRemove(1, i)}
+            />
+          ))}
+        </div>
 
-                  <Select
-                    value={prop.type}
-                    onValueChange={(val) =>
-                      updateProperty(idx, "type", val as PropertyType)
-                    }
-                  >
-                    <SelectTrigger className="w-full col-span-2">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="string">string</SelectItem>
-                      <SelectItem value="number">number</SelectItem>
-                      <SelectItem value="boolean">boolean</SelectItem>
-                      <SelectItem value="date">date</SelectItem>
-                    </SelectContent>
-                  </Select>
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" onClick={() => setLevel1Properties([])}>
+            Cancel
+          </Button>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="col-span-2"
-                    onClick={() => removeProperty(idx)}
-                  >
-                    <Trash className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              ))}
-            </Card>
-          </div>
-          <div className="flex justify-end gap-2 pt-4 w-full">
-            <Button variant="outline">Cancel</Button>
-            <Button
-              onClick={() => {
-                const payload = {
-                  level1: {
-                    id: selectedLevel1Id,
-                    name: level1Value,
-                  },
-                  level2: {
-                    id: selectedLevel2Id,
-                    name: level2Value,
-                  },
-                };
+          <Button
+            onClick={() => {
+              const formatted = level1Properties.map((p) => ({
+                ...p,
+                options: p.options
+                  ? p.options
+                      .split(",")
+                      .map((v) => v.trim())
+                      .filter(Boolean)
+                  : [],
+              }));
+              console.log("SAVE LEVEL 1:", {
+                categoryId: category.id,
+                subCategoryId: selectedLevel1Id,
+                properties: formatted,
+              });
+            }}
+          >
+            Save
+          </Button>
+        </div>
+      </Card>
 
-                console.log("SUBMIT:", payload);
-                // call server action / mutation here
-              }}
-            >
-              Save
-            </Button>
-          </div>
+      {/* LEVEL 2 CARD */}
+      <Card className="p-4 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <h3 className="text-lg font-semibold">Level 2 Properties</h3>
+          <Button
+            variant="outline"
+            onClick={() => handleAdd(2)}
+            disabled={!selectedLevel2Id}
+          >
+            Add Property
+          </Button>
+        </div>
+
+        {level2Properties.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            There is no property yet.
+          </p>
+        )}
+
+        <div className="space-y-4">
+          {level2Properties.map((property, index) => (
+            <PropertyComponent
+              property={property}
+              index={index}
+              onChange={(i, k, v) => handlePropertyChange(2, i, k, v)}
+              onRemove={(i) => handleRemove(2, i)}
+            />
+          ))}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" onClick={() => setLevel2Properties([])}>
+            Cancel
+          </Button>
+
+          <Button
+            onClick={() => {
+              const formatted = level2Properties.map((p) => ({
+                ...p,
+                options: p.options
+                  ? p.options
+                      .split(",")
+                      .map((v) => v.trim())
+                      .filter(Boolean)
+                  : [],
+              }));
+              console.log("SAVE LEVEL 2:", {
+                categoryId: category.id,
+                subCategoryId: selectedLevel2Id,
+                properties: formatted,
+              });
+            }}
+          >
+            Save
+          </Button>
         </div>
       </Card>
 
       {/* Drawer (Add / Edit) */}
-
       <div className="@container/container space-y-4">
-       <Drawer open={open} onOpenChange={setOpen} direction="right">
+        <Drawer open={open} onOpenChange={setOpen} direction="right">
           <DrawerContent
             className="
     w-full
@@ -585,17 +451,17 @@ export default function SubcategoryManagementPage({
               </DrawerTitle>
             </DrawerHeader>
              */}
-               {/* SCROLLABLE AREA */}
+            {/* SCROLLABLE AREA */}
 
             <div className="p-0.5 space-y-4 overflow-y-auto h-[calc(100vh-6rem)]">
-                   <CreateSubcategoryForm
-                     props={{
-                      activeCategory :mockMasterCategory,
-                                             onCancel: cancel,
-                    //   onSuccess: fetchCategories, // 👈 ADD THIS
-                     }}
-                   />
-                   </div>
+              <CreateSubcategoryForm
+                props={{
+                  activeCategory: category,
+                  onCancel: cancel,
+                  //   onSuccess: fetchCategories, // 👈 ADD THIS
+                }}
+              />
+            </div>
           </DrawerContent>
         </Drawer>
       </div>

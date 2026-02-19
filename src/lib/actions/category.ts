@@ -1,21 +1,24 @@
 "use server";
-import {
-  Category,
-  CategoryProperty,
-  SubCategory,
-} from "@/types/db/dbtypes";
+import { Category, CategoryProperty, SubCategory } from "@/types/db/dbtypes";
 import { CategoryFormSchema, CategoryFormSchemaWithoutProp } from "../rules";
 import { uploadImage } from "../uploadImg";
 import {
+  convertObjectId,
   deleteDocument,
   findIdByName,
   getCollection,
   insertInCollection,
-  selectCollectionDos,
+  mapDocToClient,
+  selectCollectionDocs,
   selectDocWithId,
 } from "../db";
-import { SubCategoryClient } from "@/types/dto/clientTypes";
+import {
+  CategoryClient,
+  CategoryPropertyForm,
+  SubCategoryClient,
+} from "@/types/dto/clientTypes";
 import { ObjectId } from "mongodb";
+import { emptyCategory } from "@/components/CreateEditCategoryForm";
 
 export type State = {
   message: string;
@@ -24,7 +27,7 @@ export type State = {
     catName?: string;
     catSlug?: string;
     catImage?: string;
-    properties?: CategoryProperty[];
+    catProperties?: CategoryPropertyForm[];
   };
 };
 
@@ -43,6 +46,23 @@ type imgObject = {
   imgPath: string | null;
   imgErr: string | null;
 };
+
+function toCategoryPropertyForm(
+  property: CategoryProperty,
+): CategoryPropertyForm {
+  return {
+    id: property._id?.toString(),
+    name: property.name,
+    label: property.label,
+    type: property.type,
+    required: property.required,
+    options: Array.isArray(property.options)
+      ? property.options.join(", ")
+      : typeof property.options === "string"
+        ? property.options
+        : "",
+  };
+}
 
 function isCategory(obj: Category | SubCategory): obj is Category {
   return "baseProperties" in obj;
@@ -176,7 +196,7 @@ async function validatingFunction(
           catName,
           catSlug,
           catImage: `/uploads/categories/${catObject.image}`,
-          properties,
+          catProperties: properties.map((prop) => toCategoryPropertyForm(prop)),
         },
       };
     }
@@ -190,7 +210,7 @@ async function validatingFunction(
         catName,
         catSlug,
         catImage: `/uploads/categories/${catObject.image}`,
-        properties,
+        catProperties: properties.map((prop) => toCategoryPropertyForm(prop)),
       },
     };
   }
@@ -224,7 +244,7 @@ export async function addCategory(
       catName: undefined,
       catSlug: undefined,
       catImage: undefined,
-      properties: undefined,
+      catProperties: undefined,
     },
   };
 }
@@ -263,7 +283,7 @@ export async function updateCategory(
       catName: undefined,
       catSlug: undefined,
       catImage: undefined,
-      properties: undefined,
+      catProperties: undefined,
     },
   };
 }
@@ -272,8 +292,49 @@ export async function deleteCategory(colName: string, _id: string) {
   await deleteDocument(colName, _id);
 }
 
-export async function getCategory(id: string): Promise<Category| null> {
-  return selectDocWithId("categories", id);
+// export async function getCategory2(id: string):Promise<{_id:string, name:string}> {
+//   const collection=await getCollection("categories");
+//   let cat=await collection.findOne( { _id: new ObjectId(id) },
+//       { projection: { name: 1 } })
+//       if(cat)
+//       return {_id :(cat?._id).toString(), name:cat.name};
+//     else
+//       return {_id :"", name:""};
+// }
+
+// export async function getCategory(id: string): Promise<CategoryClient> {
+//   const category=await selectDocWithId<Category>("categories", id);
+
+//  if (!category) return emptyCategory;
+
+//   let cat=  mapDocToClient(category), // root document always has _id
+
+//  const{extraProperties, ...doc}:
+//     cat?.extraProperties?.map((prop) => {
+//       const { _id, ...rest } = prop;
+//       return {
+//         ...rest,
+//         id: _id?.toString(),
+//       };
+//     }) ?? [],
+// }
+
+export async function getCategory(id: string): Promise<CategoryClient> {
+  const category = await selectDocWithId<Category>("categories", id);
+
+  if (!category) return emptyCategory;
+
+  // Map the root document to client (convert _id -> id)
+  const catClient = mapDocToClient(category);
+
+  // Map baseProperties
+  const baseProperties: CategoryPropertyForm[] =
+    category.baseProperties?.map(toCategoryPropertyForm) ?? [];
+
+  return {
+    ...catClient,
+    baseProperties,
+  };
 }
 
 export async function getSubcats(id: string): Promise<SubCategoryClient[]> {
@@ -282,12 +343,11 @@ export async function getSubcats(id: string): Promise<SubCategoryClient[]> {
   const data = await collection
     .find({ masterCategoryId: new ObjectId(id) })
     .toArray();
-
   return data.map((doc) => ({
-    ...doc,
-    _id: doc._id!.toString(),
-    parentId: doc.parentId ? doc.parentId.toString() : null,
+    ...convertObjectId(doc), // root document always has _id
+    parentId: doc.parentId?.toString() ?? null,
     masterCategoryId: doc.masterCategoryId.toString(),
+    extraProperties: doc.extraProperties?.map(toCategoryPropertyForm) ?? [],
   }));
 }
 
@@ -296,7 +356,7 @@ export async function getSubcats(id: string): Promise<SubCategoryClient[]> {
 export async function fetchSubcategories(
   categoryId: string,
 ): Promise<SubCategoryClient[]> {
-  const data = await selectCollectionDos<SubCategoryClient>("subcategories");
+  const data = await selectCollectionDocs<SubCategoryClient>("subcategories");
   return data;
 }
 
@@ -361,7 +421,7 @@ export async function addSubcategory(
       catName: undefined,
       catSlug: undefined,
       catImage: undefined,
-      properties: undefined,
+      catProperties: undefined,
     },
   };
 }

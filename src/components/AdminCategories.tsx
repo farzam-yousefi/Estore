@@ -10,9 +10,9 @@ import {
 import { Card } from "@/components/ui/card";
 import { FolderTree, Pencil, Plus, Trash } from "lucide-react";
 import Link from "next/link";
-import { CategoryClient } from "@/types/dto/clientTypes";
+import { CategoryClient, CategoryPropertyForm } from "@/types/dto/clientTypes";
 import { CategoryProperty } from "@/types/db/dbtypes";
-import { selectCollectionDos } from "@/lib/db";
+import { selectCollectionDocs } from "@/lib/db";
 import Image from "next/image";
 import { emptyCategory } from "./CreateEditCategoryForm";
 import { deleteCategory } from "@/lib/actions/category";
@@ -22,11 +22,11 @@ export default function AdminCategoriesPage() {
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] =
     useState<CategoryClient>(emptyCategory);
-  const [properties, setProperties] = useState<CategoryProperty[]>([]);
+  const [properties, setProperties] = useState<CategoryPropertyForm[]>([]);
   const [categories, setCategories] = useState<CategoryClient[]>([]);
 
   const fetchCategories = async () => {
-    const data = await selectCollectionDos<CategoryClient>("categories");
+    const data = await selectCollectionDocs<CategoryClient>("categories");
     setCategories(data ?? []);
   };
 
@@ -38,7 +38,7 @@ export default function AdminCategoriesPage() {
     try {
       await deleteCategory("categories", id);
       // update state to remove the deleted category from UI
-      setCategories((prev) => prev.filter((cat) => cat._id !== id));
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
     } catch (error) {
       console.error("Delete failed:", error);
     }
@@ -51,7 +51,7 @@ export default function AdminCategoriesPage() {
     setOpen(true);
   };
   const normalizedCategory = useMemo(() => {
-    if (!activeCategory?._id) return emptyCategory;
+    if (!activeCategory?.id) return emptyCategory;
 
     return {
       ...activeCategory,
@@ -60,7 +60,7 @@ export default function AdminCategoriesPage() {
         : null,
     };
   }, [activeCategory]);
-
+console.log("AAAAAAAAAAaa",categories)
   return (
     <div className="p-0.5 md:p-1 space-y-6">
       {/* Header */}
@@ -89,7 +89,7 @@ export default function AdminCategoriesPage() {
           {categories?.length !== 0 && (
             <tbody>
               {categories.map((cat) => (
-                <tr key={cat._id} className="border-b last:border-none">
+                <tr key={cat.id} className="border-b last:border-none">
                   <td className="px-3 py-2 font-medium">{cat.name}</td>
                   <td className="px-3 py-2 text-muted-foreground">
                     {cat.slug}
@@ -109,7 +109,7 @@ export default function AdminCategoriesPage() {
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-2">
-                      <Link href={`/admin/categories/subcategories/${cat._id}`}>
+                      <Link href={`/admin/categories/subcategories/${cat.id}`}>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -128,7 +128,7 @@ export default function AdminCategoriesPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(cat._id)}
+                        onClick={() => handleDelete(cat.id)}
                       >
                         <Trash className="h-4 w-4 text-destructive" />
                       </Button>

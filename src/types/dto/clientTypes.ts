@@ -1,27 +1,31 @@
-import { CategoryProperty } from "../db/dbtypes";
+import { CategoryProperty, PropertyType } from "../db/dbtypes";
 
 // types/client/category.ts
 export type CategoryClient = {
-  _id: string;
+  id: string;
   name: string;
   slug: string;
   image?:string|null;
-  baseProperties: {
-    name: string;
-    label: string;
-    type: "string" | "number" | "boolean" | "date";
-    required: boolean;
-    options?: string[];
-  }[];
+  baseProperties: CategoryPropertyForm[];
 };
 
 
 export type SubCategoryClient = {
-  _id: string;
+  id: string;
   name: string;
   slug :string;
   parentId: string | null;
   masterCategoryId: string;
   level: number;
-  extraProperties?: CategoryProperty[];
+  extraProperties?: CategoryPropertyForm[];
+};
+
+
+export type CategoryPropertyForm = {
+  id?: string;
+  name: string;
+  label: string;
+  type: PropertyType;
+  required: boolean;
+  options: string; // CSV string for input field
 };

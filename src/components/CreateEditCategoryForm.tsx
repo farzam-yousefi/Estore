@@ -15,16 +15,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageIcon, Plus } from "lucide-react";
-import { CategoryProperty } from "@/types/db/dbtypes";
+
 
 import PropertyComponent from "./PropertyComponent";
 import Image from "next/image";
 import Link from "next/link";
-import { CategoryClient } from "@/types/dto/clientTypes";
+import { CategoryClient, CategoryPropertyForm } from "@/types/dto/clientTypes";
 import { add_updateCategory, State } from "@/lib/actions/category";
 
 export const emptyCategory: CategoryClient = {
-  _id: "",
+  id: "",
   name: "",
   slug: "",
   image: null,
@@ -59,14 +59,14 @@ export default function CreateEditCategoryForm({
   const addProperty = () => {
     setProperties((prev) => [
       ...prev,
-      { name: "", label: "", type: "string", required: false, options: [] },
+      { name: "", label: "", type: "string", required: false, options: "" },
     ]);
   };
 
   // Update property field
   const updateProperty = (
     index: number,
-    key: keyof CategoryProperty,
+    key: keyof CategoryPropertyForm,
     value: any,
   ) => {
     setProperties((prev) =>
@@ -93,7 +93,7 @@ export default function CreateEditCategoryForm({
       setName(state.defaultValues.catName || "");
       setSlug(state.defaultValues.catSlug || "");
       setImagePreview(state.defaultValues.catImage || "");
-      setProperties(state.defaultValues.properties || []);
+      setProperties(state.defaultValues.catProperties || []);
     }
   }, [state?.defaultValues]);
 
@@ -115,7 +115,7 @@ export default function CreateEditCategoryForm({
     <>
       <form action={formAction}>
         <Card className="max-w-4xl mx-auto">
-          {category._id === "" && (
+          {category.id === "" && (
             <CardHeader>
               <CardTitle>Create Master Category</CardTitle>
             </CardHeader>
@@ -123,7 +123,7 @@ export default function CreateEditCategoryForm({
           <CardContent className="space-y-6">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="hidden" name="catId" value={category._id} />
+              <input type="hidden" name="catId" value={category.id} />
               <div className="space-y-2">
                 <Label>Category Name</Label>
                 <Input
@@ -222,7 +222,7 @@ export default function CreateEditCategoryForm({
                 />
               ))}
             </div>
-            {category._id === "" ? (
+            {category.id === "" ? (
               <Button type="submit" className="w-full">
                 Create Category
               </Button>

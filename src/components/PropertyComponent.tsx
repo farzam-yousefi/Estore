@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { CategoryProperty } from "@/types/db/dbtypes";
+import { CategoryPropertyForm } from "@/types/dto/clientTypes";
 
 function FieldError({ message }: { message?: string }) {
   return <p className="text-sm text-destructive min-h-5">{message || ""}</p>;
@@ -23,14 +24,14 @@ export default function PropertyComponent({
   onChange,
   onRemove,
 }: {
-  property: CategoryProperty;
+  property: CategoryPropertyForm;
   index: number;
   errors?: {
     name?: string;
     label?: string;
     type?: string;
   };
-  onChange: (index: number, key: keyof CategoryProperty, value: any) => void;
+  onChange: (index: number, key: keyof CategoryPropertyForm, value: any) => void;
   onRemove: (index: number) => void;
 }) {
   return (
