@@ -5,7 +5,6 @@ export const sidebarSeedData: SidebarGroupDoc[] = [
     //  id: "catalog",
     title: "Catalog",
     order: 2,
-    //  depth :2,
     roles: ["superAdmin", "admin"],
     type: "ordinary",
     items: [
@@ -43,7 +42,6 @@ export const sidebarSeedData: SidebarGroupDoc[] = [
         icon: "FolderTree",
         roles: ["superAdmin", "admin"],
         order: 2,
-        //  submenuMode: "flyout",
         // type: "non-leaf",
         children: [
           {
@@ -75,7 +73,6 @@ export const sidebarSeedData: SidebarGroupDoc[] = [
     // id: "orders",
     title: "Invoices",
     order: 3,
-    // depth :2,
     type: "ordinary",
     roles: ["superAdmin", "admin"],
     items: [
@@ -167,7 +164,6 @@ export const sidebarSeedData: SidebarGroupDoc[] = [
     //   id: "inventory",
     title: "Inventory",
     order: 4,
-    // depth :2,
     type: "ordinary",
     roles: ["superAdmin", "admin"],
     items: [

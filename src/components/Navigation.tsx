@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import Image from "next/image";
 import { logout } from "@/lib/actions/auths";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { LogOut, Settings, User } from "lucide-react";
+import { NavLink } from "./NavLink";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,10 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { LogOut, Settings, User } from "lucide-react";
-import { NavLink } from "./NavLink";
-import Link from "next/link";
 
 export default async function Navigation() {
   const session = await auth();

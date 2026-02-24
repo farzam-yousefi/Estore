@@ -1,16 +1,14 @@
 "use client";
-
 import { useActionState } from "react";
 import Link from "next/link";
 import { login, LoginState } from "../lib/actions/auths";
 import GoogleLoginButton from "./GoogleLoginButton";
+import { LogInIcon } from "lucide-react";
 import {
   AtSymbolIcon,
   ExclamationCircleIcon,
   KeyIcon,
 } from "@heroicons/react/24/outline";
-
-import { LogInIcon } from "lucide-react";
 
 export default function LoginForm() {
   const initialState: LoginState = {
@@ -22,7 +20,6 @@ export default function LoginForm() {
     },
   };
   const [state, loginAction, isPending] = useActionState(login, initialState);
-
   return (
     <div>
       <form action={loginAction} className="space-y-4">

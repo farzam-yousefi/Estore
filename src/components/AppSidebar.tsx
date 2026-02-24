@@ -1,17 +1,6 @@
 "use client";
-
 import * as React from "react";
-
-import {
-  Calendar,
-  ChevronDown,
-  ChevronRight,
-  Home,
-  Package,
-  Search,
-  Settings,
-} from "lucide-react";
-
+import { ChevronDown, ChevronRight } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -43,117 +32,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MergedSidebarGroup, SidebarItem } from "@/types/sidebar.types";
-import { group } from "console";
-import { resolveIcon } from "@/lib/icon-map";
 import { SidebarHeaderLogo } from "./SidebarHeaderLogo";
-
-// type MenuItem2 = {
-//   title: string
-//   url: string
-//   icon?: React.ComponentType
-//   children?: MenuItem2[]
-// }
-
-// Menu items.
-// const items: MenuItem2[] = [
-//   {
-//     title: 'Home',
-//     url: '#',
-//     icon: Home,
-//   },
-//   {
-//     title: 'Catalog',
-//     url: '#',
-//     icon: Package,
-//     children: [
-//       {
-//         title: 'Product',
-//         icon: Package,
-//         url: '#',
-//         children: [
-//           {
-//             title: 'All Products',
-//             url: '#',
-//           },
-//           {
-//             title: 'Add Product',
-//             url: '#',
-//           },
-//         ],
-//       },
-//       {
-//         title: 'Category',
-//         url: '#',
-//       },
-//     ],
-//   },
-//   {
-//     title: 'Orders',
-//     url: '#',
-//     icon: Calendar,
-//     children: [
-//       {
-//         title: 'New Order',
-//         url: '#',
-//       },
-//       {
-//         title: 'Order History',
-//         url: '#',
-//         children: [
-//           {
-//             title: 'Last 30 Days',
-//             url: '#',
-//             children: [
-//               {
-//                 title: 'Level 3 Item',
-//                 url: '#',
-//               },
-//               {
-//                 title: 'Older',
-//                 url: '#',
-//                 children: [
-//                   {
-//                     title: 'Level 4 Item',
-//                     url: '#',
-//                   },
-//                   {
-//                     title: 'Older',
-//                     url: '#',
-//                   },
-//                 ],
-//               },
-//             ],
-//           },
-//           {
-//             title: 'Older',
-//             url: '#',
-//           },
-//         ],
-//       },
-//     ],
-//   },
-//   {
-//     title: 'Search',
-//     url: '#',
-//     icon: Search,
-//   },
-//   {
-//     title: 'Settings',
-//     url: '#',
-//     icon: Settings,
-//   },
-// ]
+import { resolveIcon } from "@/lib/generalUtilities";
 
 function renderIconOrPlaceholder(item: SidebarItem, showPlaceholder: boolean) {
   if (item.icon) {
     const Icon = resolveIcon(item.icon);
     return <Icon />;
   }
-
   if (showPlaceholder) {
     return <span className="inline-flex size-4 shrink-0" aria-hidden />;
   }
-
   return null;
 }
 
@@ -178,7 +67,7 @@ function renderDropdownItems(itemsList: SidebarItem[]) {
           <span>{item.title}</span>
         </a>
       </DropdownMenuItem>
-    )
+    ),
   );
 }
 
@@ -214,7 +103,7 @@ function renderSidebarSubItems(itemsList: SidebarItem[]) {
           </a>
         </SidebarMenuSubButton>
       </SidebarMenuSubItem>
-    )
+    ),
   );
 }
 
@@ -282,7 +171,6 @@ function SidebarMenuItemWithChildren({
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              {/* {item.icon && <item.icon />} */}
               <Icon />
               <span>{item.title}</span>
             </SidebarMenuButton>
@@ -315,7 +203,6 @@ function SidebarMenuItemWithChildren({
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
-                {/* {item.icon && <item.icon />} */}
                 <Icon />
                 <span>{item.title}</span>
                 <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -362,7 +249,11 @@ export function AppSidebar({ groups }: { groups: MergedSidebarGroup[] }) {
       <SidebarContent>
         {groups.map((group) =>
           group.type === "collapsable" ? (
-            <Collapsible key={group.title} defaultOpen className="group/collapsible">
+            <Collapsible
+              key={group.title}
+              defaultOpen
+              className="group/collapsible"
+            >
               <SidebarGroup>
                 <SidebarGroupLabel asChild>
                   <CollapsibleTrigger>
@@ -383,7 +274,7 @@ export function AppSidebar({ groups }: { groups: MergedSidebarGroup[] }) {
                                 isOpen={openItemTitle === item.title}
                                 onOpenChange={(nextOpen) => {
                                   setOpenItemTitle(
-                                    nextOpen ? item.title : null
+                                    nextOpen ? item.title : null,
                                   );
                                 }}
                               />
@@ -438,7 +329,7 @@ export function AppSidebar({ groups }: { groups: MergedSidebarGroup[] }) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-          )
+          ),
         )}
       </SidebarContent>
     </Sidebar>

@@ -10,16 +10,9 @@ export default async function Page(props: {
 }) {
   const params = await props.params;
   const id = params.categoryId;
-
   const category = await getCategory(id);
-
   const subcategories = await getSubcats(id);
-
   return (
-    <SubcategoryManagementPage
-      // category={{ _id: category._id, name: category.name }}
-      category={category}
-      subCats={subcategories}
-    />
+    <SubcategoryManagementPage category={category} subCats={subcategories} />
   );
 }

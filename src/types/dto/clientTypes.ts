@@ -1,25 +1,23 @@
 import { CategoryProperty, PropertyType } from "../db/dbtypes";
 
-// types/client/category.ts
 export type CategoryClient = {
   id: string;
   name: string;
   slug: string;
-  image?:string|null;
+  image?: string | null;
   baseProperties: CategoryPropertyForm[];
+  subCount?: number;
 };
-
 
 export type SubCategoryClient = {
   id: string;
   name: string;
-  slug :string;
+  slug: string;
   parentId: string | null;
   masterCategoryId: string;
   level: number;
   extraProperties?: CategoryPropertyForm[];
 };
-
 
 export type CategoryPropertyForm = {
   id?: string;
@@ -27,5 +25,12 @@ export type CategoryPropertyForm = {
   label: string;
   type: PropertyType;
   required: boolean;
-  options: string; // CSV string for input field
+  options?: string; // CSV string for input field
+  readOnly?: boolean;
+  insertInSub?: boolean;
+  errors?: {
+    name?: string;
+    label?: string;
+    type?: string;
+  };
 };

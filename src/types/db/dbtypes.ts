@@ -9,7 +9,7 @@ export type CategoryProperty = {
   required: boolean;
   // min?: number;
   // max?: number;
-  options?: string[];
+  options?: string;
 };
 
 export type Category = {
@@ -29,6 +29,11 @@ export type SubCategory = {
   masterCategoryId: ObjectId;
   level: number;
   extraProperties: CategoryProperty[];
+};
+
+export type imgObject = {
+  imgPath: string | null;
+  imgErr: string | null;
 };
 
 export type Product = {
@@ -63,7 +68,6 @@ export type GlobalDiscount = {
     categoryIds?: ObjectId[];
     subCategoryIds?: ObjectId[];
   };
-
   startDate: Date;
   endDate: Date;
   isActive: boolean;

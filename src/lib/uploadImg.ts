@@ -1,5 +1,4 @@
 "use server";
-
 import fs from "fs/promises";
 import path from "path";
 import { nanoid } from "nanoid";
@@ -18,7 +17,6 @@ export async function uploadImage(
   if (!file || file.size === 0) {
      return { imgPath: null, imgErr: "choose an image" };
   }
-
   const MAX_SIZE = options?.maxSize ?? 2 * 1024 * 1024;
   const ALLOWED_TYPES =
     options?.allowedTypes ?? ["image/jpeg","image/png", "image/webp"];

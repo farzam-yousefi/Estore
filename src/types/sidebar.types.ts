@@ -1,5 +1,3 @@
-// types/sidebar.types.ts
-
 import { AdminRole } from "./Roles";
 
 export type SubmenuMode = "inline" | "flyout" | "DropDown";
@@ -23,7 +21,6 @@ export interface SidebarGroup {
   order: number;
   roles: AdminRole[];
   items: SidebarItem[];
-  //  depth :number;
 }
 
 //dynamic from db
@@ -48,10 +45,7 @@ export interface SidebarItem {
     label: string;
     variant?: "default" | "destructive" | "outline";
   };
-
   // featureFlag?: string;
-
-  // submenuMode?: SubmenuMode;
   //  type :"leaf"|"non-leaf";
   hidden?: boolean;
 }

@@ -8,17 +8,21 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Card } from "@/components/ui/card";
-import { FolderTree, Pencil, Plus, Trash } from "lucide-react";
+import { Eye, FolderTree, Pencil, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import { CategoryClient, CategoryPropertyForm } from "@/types/dto/clientTypes";
-import { CategoryProperty } from "@/types/db/dbtypes";
-import { selectCollectionDocs } from "@/lib/db";
 import Image from "next/image";
 import { emptyCategory } from "./CreateEditCategoryForm";
-import { deleteCategory } from "@/lib/actions/category";
+import {
+  deleteCat_subCat,
+  getCategoriesWithCounts,
+} from "@/lib/actions/category";
 import CreateEditCategoryForm from "./CreateEditCategoryForm";
+import { Badge } from "./ui/badge";
+import { ConfirmDialog } from "./CustomAlertDialog";
 
 export default function AdminCategoriesPage() {
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] =
     useState<CategoryClient>(emptyCategory);
@@ -26,8 +30,8 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CategoryClient[]>([]);
 
   const fetchCategories = async () => {
-    const data = await selectCollectionDocs<CategoryClient>("categories");
-    setCategories(data ?? []);
+    const data = await getCategoriesWithCounts();
+    setCategories(data);
   };
 
   useEffect(() => {
@@ -36,7 +40,7 @@ export default function AdminCategoriesPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteCategory("categories", id);
+      await deleteCat_subCat("categories", id);
       // update state to remove the deleted category from UI
       setCategories((prev) => prev.filter((cat) => cat.id !== id));
     } catch (error) {
@@ -50,9 +54,9 @@ export default function AdminCategoriesPage() {
     setProperties(category?.baseProperties ?? []);
     setOpen(true);
   };
+
   const normalizedCategory = useMemo(() => {
     if (!activeCategory?.id) return emptyCategory;
-
     return {
       ...activeCategory,
       image: activeCategory.image
@@ -60,14 +64,14 @@ export default function AdminCategoriesPage() {
         : null,
     };
   }, [activeCategory]);
-console.log("AAAAAAAAAAaa",categories)
+
   return (
     <div className="p-0.5 md:p-1 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Categories</h1>
         <Link href="/admin/categories/create">
-          <Button>
+          <Button type="button">
             <Plus className="mr-2 h-4 w-4" /> Add Category
           </Button>
         </Link>
@@ -82,6 +86,7 @@ console.log("AAAAAAAAAAaa",categories)
               <th className="px-3 py-2 text-left">Slug</th>
               <th className="px-3 py-2 text-left">Props</th>
               <th className="px-3 py-2 text-left">Image</th>
+              <th className="px-3 py-2 text-left">Subcats</th>
               <th className="px-3 py-2 text-right">Actions</th>
             </tr>
           </thead>
@@ -97,6 +102,7 @@ console.log("AAAAAAAAAAaa",categories)
                   <td className="px-3 py-2 items-center">
                     {cat.baseProperties ? cat.baseProperties.length : 0}
                   </td>
+
                   <td className="px-3 py-2">
                     <div className="relative w-15 h-15 rounded-lg overflow-hidden border">
                       <Image
@@ -107,10 +113,30 @@ console.log("AAAAAAAAAAaa",categories)
                       />
                     </div>
                   </td>
+                  <td className="px-3 py-2 items-center">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      title="View"
+                      className="relative"
+                    >
+                      <Eye className="h-6 w-6" />
+                      {cat.subCount !== undefined && (
+                        <Badge
+                          variant="secondary"
+                          className="absolute -top-1 -right-1 text-xs"
+                        >
+                          {cat.subCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-2">
                       <Link href={`/admin/categories/subcategories/${cat.id}`}>
                         <Button
+                          type="button"
                           variant="ghost"
                           size="icon"
                           title="Manage Subcategories"
@@ -119,6 +145,7 @@ console.log("AAAAAAAAAAaa",categories)
                         </Button>
                       </Link>
                       <Button
+                        type="button"
                         variant="ghost"
                         size="icon"
                         onClick={() => openDrawer(cat)}
@@ -126,9 +153,10 @@ console.log("AAAAAAAAAAaa",categories)
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
+                        type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(cat.id)}
+                        onClick={() => setCategoryToDelete(cat.id)}
                       >
                         <Trash className="h-4 w-4 text-destructive" />
                       </Button>
@@ -139,6 +167,17 @@ console.log("AAAAAAAAAAaa",categories)
             </tbody>
           )}
         </table>
+        <ConfirmDialog
+          open={!!categoryToDelete}
+          title="Delete Category"
+          description="This will permanently remove this category and related data. Are you sure?"
+          onConfirm={async () => {
+            if (!categoryToDelete) return;
+            await handleDelete(categoryToDelete);
+            setCategoryToDelete(null);
+          }}
+          onCancel={() => setCategoryToDelete(null)}
+        />
       </Card>
 
       {/* Drawer */}
@@ -165,7 +204,7 @@ console.log("AAAAAAAAAAaa",categories)
                 props={{
                   activeCategory: normalizedCategory,
                   onCancel: cancel,
-                  onSuccess: fetchCategories, // 👈 ADD THIS
+                  onSuccess: fetchCategories, 
                 }}
               />
             </div>

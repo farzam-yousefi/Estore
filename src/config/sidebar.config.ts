@@ -11,9 +11,8 @@ export const sidebarConfig: SidebarConfig = {
     {
       title: "Main",
       order: 1,
-      type :"ordinary",
+      type: "ordinary",
       roles: ["superAdmin", "admin"],
-    //  depth :1,
       items: [
         {
           title: "Home",
@@ -21,7 +20,7 @@ export const sidebarConfig: SidebarConfig = {
           url: "/",
           roles: ["superAdmin", "admin"],
           order: 1,
-         // type :"leaf"
+          // type :"leaf"
         },
         {
           title: "Dashboard",
@@ -29,83 +28,77 @@ export const sidebarConfig: SidebarConfig = {
           url: "/admin/dashboard",
           roles: ["superAdmin", "admin"],
           order: 1,
-        //  type :"leaf"
+          //  type :"leaf"
         },
       ],
     },
     {
-    //  id: "users",
+      //  id: "users",
       title: "User Management",
       order: 5,
-    //  depth :2,
-      type :"collapsable",
+      type: "collapsable",
       roles: ["superAdmin", "admin"],
       items: [
         {
-       //   id: "users-root",
+          //   id: "users-root",
           title: "Users",
           icon: "Users",
           roles: ["superAdmin"],
-          order : 1,
-      //    type :"non-leaf",
-      //    submenuMode :"DropDown",
+          order: 1,
+          //    type :"non-leaf",
           children: [
             {
-          //    id: "admin-users",
+              //    id: "admin-users",
               title: "Admins",
-              icon :"ShieldCheck",
+              icon: "ShieldCheck",
               url: "/admin/users/admins",
               roles: ["superAdmin"],
-              order :1,
-          //    type :"leaf"
+              order: 1,
+              //    type :"leaf"
             },
             {
-          //    id: "customer-users",
+              //    id: "customer-users",
               title: "Customers",
-              icon :"User",
-              order : 2,
+              icon: "User",
+              order: 2,
               url: "/admin/users/customers",
               roles: ["superAdmin", "admin"],
-          //    type :"leaf"
+              //    type :"leaf"
             },
           ],
         },
       ],
     },
     {
-    //  id: "settings",
+      //  id: "settings",
       title: "Settings",
       order: 6,
-    //  depth :2,
-      type :"collapsable",
+      type: "collapsable",
       roles: ["superAdmin"],
       items: [
         {
-    //      id: "settings-root",
+          //      id: "settings-root",
           title: "System Settings",
           icon: "Settings",
-          order : 1,
+          order: 1,
           roles: ["superAdmin"],
-      //    submenuMode :"DropDown",
-     //     type :"non-leaf",
           children: [
             {
-     //         id: "general-settings",
+              //         id: "general-settings",
               title: "General",
-              
-              order :1,
+              order: 1,
               url: "/admin/settings/general",
               roles: ["superAdmin"],
-       //       type :"leaf"
+              //       type :"leaf"
             },
             {
-        //      id: "security-settings",
+              //      id: "security-settings",
               title: "Security",
-              icon : "Shield",
-              order : 2,
+              icon: "Shield",
+              order: 2,
               url: "/admin/settings/security",
               roles: ["superAdmin"],
-         //     type :"leaf"
+              //     type :"leaf"
             },
           ],
         },

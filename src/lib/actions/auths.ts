@@ -1,6 +1,5 @@
 // src/lib/actions/auths.ts
 "use server";
-
 import bcrypt from "bcrypt";
 import { auth, signIn, signOut } from "@/auth";
 import { getCollection } from "@/lib/db";

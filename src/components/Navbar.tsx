@@ -1,6 +1,12 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import { useTheme } from "next-themes";
+import { SidebarTrigger } from "./ui/sidebar";
+import { Button } from "./ui/button";
+import { useSession } from "next-auth/react";
+import { NavLink } from "./NavLink";
+import { logout } from "@/lib/actions/auths";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,12 +16,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useTheme } from "next-themes";
-import { SidebarTrigger } from "./ui/sidebar";
-import { Button } from "./ui/button";
-import { useSession } from "next-auth/react";
-import { NavLink } from "./NavLink";
-import { logout } from "@/lib/actions/auths";
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -30,11 +30,9 @@ export function Navbar() {
           </div>
           <div className="flex items-center gap-4">
             <NavLink label="Dashboard" href="/admin/dashboard" />
-
             <button className="nav-link" onClick={logout}>
               Logout
             </button>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">

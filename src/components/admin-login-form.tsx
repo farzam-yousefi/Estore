@@ -1,5 +1,4 @@
 "use client";
-
 import { useActionState } from "react";
 import { login, LoginState } from "../lib/actions/auths";
 import {
@@ -9,6 +8,7 @@ import {
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "./ui/button";
+
 export default function AdminLoginForm() {
   const initialState: LoginState = {
     email: "",
@@ -19,7 +19,6 @@ export default function AdminLoginForm() {
     },
   };
   const [state, loginAction, isPending] = useActionState(login, initialState);
-
   return (
     <div>
       <form action={loginAction} className="space-y-4">

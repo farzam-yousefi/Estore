@@ -1,5 +1,4 @@
 "use client";
-
 import { useActionState } from "react";
 import Link from "next/link";
 import { register, RegisterState } from "../lib/actions/auths";
@@ -40,7 +39,6 @@ export default function RegisterForm() {
           </div>
         )}
       </div>
-
       <div>
         <label htmlFor="confirmPassword">Confirm Password</label>
         <input type="password" name="confirmPassword" />
@@ -49,12 +47,10 @@ export default function RegisterForm() {
             <p className="error">{state.errors.confirmPassword}</p>
           )}
       </div>
-
       <div className="flex items-end gap-4">
         <button disabled={isPending} className="btn-primary">
           {isPending ? "Loading..." : "Register"}
         </button>
-
         <Link href="/login" className="text-link">
           or login here
         </Link>

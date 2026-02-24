@@ -1,6 +1,4 @@
-// components/SidebarHeaderLogo.tsx
 "use client";
-
 import { SidebarMenuButton, SidebarMenuItem, SidebarMenu } from "./ui/sidebar";
 import Link from "next/link";
 import Image from "next/image";

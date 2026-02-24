@@ -98,10 +98,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             createdAt: new Date(),
           });
         }
-
         user.role = existing?.role ?? "user";
       }
-
       return true;
     },
 

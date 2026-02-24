@@ -9,9 +9,7 @@ function filterItemsByRole(
     .filter((item) => item.roles.includes(role) && !item.hidden)
     .map((item) => {
       if (!item.children) return item;
-
       const filteredChildren = filterItemsByRole(item.children, role);
-
       if (filteredChildren.length === 0 && !item.url) {
         return null;
       }

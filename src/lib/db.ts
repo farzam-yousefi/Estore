@@ -1,27 +1,29 @@
-// lib/db.ts
 "use server";
-import { MongoClient, Db, Collection, Document, ObjectId, WithId } from "mongodb";
-import { object } from "zod";
-
-const uri = process.env.DB_URI!;
-if (!uri) {
-  throw new Error("DB_URI is not defined in environment variables");
-}
-
-let db: Db;
+import {
+  MongoClient,
+  Db,
+  Collection,
+  Document,
+  ObjectId,
+  WithId,
+} from "mongodb";
 
 declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
+let db: Db;
+const uri = process.env.DB_URI!;
+if (!uri) {
+  throw new Error("DB_URI is not defined in environment variables");
+}
+
 async function connectToDatabase(): Promise<Db> {
   if (db) return db;
-
   if (!global._mongoClientPromise) {
     const client = new MongoClient(uri);
     global._mongoClientPromise = client.connect();
   }
-
   const client = await global._mongoClientPromise;
   db = client.db("store_db");
   return db;
@@ -68,12 +70,11 @@ export async function deleteDocument(colName: string, _id: string) {
     throw new Error("Delete was failed");
   }
 }
-////////////////////////////////////////////
+
 export async function selectDocWithId<T extends Document>(
   collName: string,
-  id: string
-): Promise <WithId<T>|null> {
-  console.log("fffff",id)
+  id: string,
+): Promise<WithId<T> | null> {
   try {
     const collection = await getCollection<T>(collName);
     return await collection.findOne({ _id: new ObjectId(id) } as any);
@@ -82,49 +83,18 @@ export async function selectDocWithId<T extends Document>(
   }
 }
 
-
-
-export async function findIdByName(collName:string , objectName:string):Promise <ObjectId> {
-   try {
-    const collection = await getCollection(collName);
-    const doc= await collection.findOne({ name: objectName , projection:{_id :1}});
-    if (!doc?._id) {
-      throw new Error("Document not found");
-    }
-
-    return doc._id;
-  } catch (e) {
-    throw new Error("Select was failed");
-  }
-}
-
 export function mapDocToClient<T extends { _id: ObjectId }>(
-  doc: T
-): Omit<T, "_id"> & {id: string } {
+  doc: T,
+): Omit<T, "_id"> & { id: string } {
   return {
     ...doc,
     id: doc._id.toString(),
   };
 }
 
-export function convertObjectId<T extends { _id: ObjectId }>(
-  doc: T
-): Omit<T, "_id"> & { id: string } {
-  const { _id, ...rest } = doc;
-  return {
-    ...rest,
-    id: _id.toString(),
-  };
+export function toObjectId(id: string): ObjectId {
+  if (typeof id !== "string" || !ObjectId.isValid(id)) {
+    throw new Error("Invalid ObjectId");
+  }
+  return new ObjectId(id);
 }
-
-// export function convertObjectId<T extends { _id?: ObjectId }>(
-//   doc: T
-// ): Omit<T, "_id"> & { id?: string } {
-//   const { _id, ...rest } = doc;
-
-//   return {
-//     ...rest,
-//     id: _id?.toString(),
-//   };
-// }
-
